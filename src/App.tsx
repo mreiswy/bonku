@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MotionConfig } from 'framer-motion';
 import type { Project } from './types/bonku';
 import { useLenisSmoothScroll } from './hooks/useLenisSmoothScroll';
+import { usePageRouter } from './hooks/usePageRouter';
 import { NavigationBar } from './components/navigation/NavigationBar';
 import { HeroSection } from './components/hero/HeroSection';
 import { WelcomeAnimation } from './components/hero/WelcomeAnimation';
@@ -11,46 +12,45 @@ import { MarketingGrid } from './components/marketing/MarketingGrid';
 import { OrderTimeline } from './components/order/OrderTimeline';
 import { ContactSection } from './components/contact/ContactSection';
 import { ProductDetailModal } from './components/products/ProductDetailModal';
-import { QuickOrderModal } from './components/order/QuickOrderModal';
-import { AdminAuthModal } from './components/admin/AdminAuthModal';
-import { AdminDashboardModal } from './components/admin/AdminDashboardModal';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { OrderPage } from './pages/OrderPage';
 
 export function App() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [activeModalProject, setActiveModalProject] = useState<Project | null>(null);
-
-  // Quick Order & Admin Modal States
-  const [isQuickOrderOpen, setIsQuickOrderOpen] = useState(false);
   const [quickOrderProductId, setQuickOrderProductId] = useState<string | undefined>(undefined);
-  const [isAdminAuthOpen, setIsAdminAuthOpen] = useState(false);
-  const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
+
+  const { currentRoute, navigateTo } = usePageRouter();
 
   useLenisSmoothScroll();
 
-  const handleOpenQuickOrder = (productId?: string) => {
+  const handleOpenOrderPage = (productId?: string) => {
     setQuickOrderProductId(productId);
-    setIsQuickOrderOpen(true);
+    navigateTo('order');
   };
 
-  const handleOpenAdmin = () => {
-    const isAuthed = sessionStorage.getItem('bonku_admin_auth') === 'true';
-    if (isAuthed) {
-      setIsAdminDashboardOpen(true);
-    } else {
-      setIsAdminAuthOpen(true);
-    }
-  };
+  // 1. TAMPILAN HALAMAN DASHBOARD ADMIN
+  if (currentRoute === 'admin') {
+    return (
+      <MotionConfig reducedMotion="user">
+        <AdminDashboardPage onNavigateHome={() => navigateTo('home')} />
+      </MotionConfig>
+    );
+  }
 
-  const handleAdminAuthSuccess = () => {
-    setIsAdminAuthOpen(false);
-    setIsAdminDashboardOpen(true);
-  };
+  // 2. TAMPILAN HALAMAN PEMESANAN (ORDER PAGE)
+  if (currentRoute === 'order') {
+    return (
+      <MotionConfig reducedMotion="user">
+        <OrderPage
+          onNavigateHome={() => navigateTo('home')}
+          initialProductId={quickOrderProductId}
+        />
+      </MotionConfig>
+    );
+  }
 
-  const handleAdminLogout = () => {
-    sessionStorage.removeItem('bonku_admin_auth');
-    setIsAdminDashboardOpen(false);
-  };
-
+  // 3. TAMPILAN HALAMAN UTAMA (LANDING PAGE)
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-svh bg-[#fdf3e3] text-[#2a1710] selection:bg-[#b2430f] selection:text-white">
@@ -65,37 +65,19 @@ export function App() {
         <NavigationBar />
 
         <main id="main" className="relative">
-          <HeroSection onOpenQuickOrder={() => handleOpenQuickOrder()} />
+          <HeroSection onOpenQuickOrder={() => handleOpenOrderPage()} />
           <AboutProduct />
           <ProductShowcase onOpenProject={setActiveModalProject} />
           <MarketingGrid />
           <OrderTimeline />
-          <ContactSection onOpenAdmin={handleOpenAdmin} />
+          <ContactSection onOpenAdmin={() => navigateTo('admin')} />
         </main>
 
         <ProductDetailModal
           project={activeModalProject}
           isOpen={!!activeModalProject}
           onClose={() => setActiveModalProject(null)}
-          onOpenQuickOrder={handleOpenQuickOrder}
-        />
-
-        <QuickOrderModal
-          isOpen={isQuickOrderOpen}
-          onClose={() => setIsQuickOrderOpen(false)}
-          initialProductId={quickOrderProductId}
-        />
-
-        <AdminAuthModal
-          isOpen={isAdminAuthOpen}
-          onClose={() => setIsAdminAuthOpen(false)}
-          onSuccess={handleAdminAuthSuccess}
-        />
-
-        <AdminDashboardModal
-          isOpen={isAdminDashboardOpen}
-          onClose={() => setIsAdminDashboardOpen(false)}
-          onLogout={handleAdminLogout}
+          onOpenQuickOrder={(productId) => handleOpenOrderPage(productId)}
         />
       </div>
     </MotionConfig>
