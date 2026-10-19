@@ -88,7 +88,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               <h3 className="text-xl sm:text-3xl font-black text-[#2a1710] tracking-tight">
                 {project.title}
               </h3>
-              <p className="text-xs sm:text-sm font-mono font-bold text-[#e2571a] mt-0.5">
+              <p className="text-xs sm:text-sm font-mono font-bold text-[#b2430f] mt-0.5">
                 {project.subtitle}
               </p>
             </div>
@@ -135,7 +135,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* project mandate and overview */}
           <div className="space-y-2">
             <h4 className="text-[11px] sm:text-xs font-mono uppercase font-black text-[#2a1710] flex items-center gap-2">
-                          <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#e2571a]" />
+                          <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b2430f]" />
                           <span>Deskripsi &amp; Asal Usul Produk</span>
                         </h4>
             <p className="text-xs sm:text-base text-[#334155] leading-relaxed bg-[#fdf3e3] p-3.5 sm:p-5 rounded-xl sm:rounded-2xl border-2 border-[#2a1710]/30 font-medium">
@@ -146,7 +146,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* architecture and technical execution */}
           <div className="space-y-3">
             <h4 className="text-xs font-mono uppercase font-black text-[#2a1710] flex items-center gap-2">
-              <Package className="w-4 h-4 text-[#e2571a]" />
+              <Package className="w-4 h-4 text-[#b2430f]" />
                             <span>Tentang Produk</span>
                           </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -215,7 +215,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#fdf3e3] hover:bg-[#f8e7d2] text-[#2a1710] text-xs font-mono font-black border-2 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] hover:translate-x-0.5 hover:translate-y-0.5 active:shadow-none transition-all"
                           >
-                            <ShoppingBag className="w-4 h-4 text-[#e2571a]" />
+                            <ShoppingBag className="w-4 h-4 text-[#b2430f]" />
                             <span>Isi Form Pemesanan</span>
                           </a>
                         ) : (

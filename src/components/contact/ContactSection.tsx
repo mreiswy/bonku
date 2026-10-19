@@ -255,7 +255,7 @@ export const ContactSection: React.FC = () => {
                         onClick={() => setSelectedTopic(topic)}
                         className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-mono font-bold border-2 transition-all cursor-pointer ${
                           isSelected
-                            ? "bg-[#e2571a] text-white border-[#2a1710] shadow-[2px_2px_0px_#2a1710]"
+                            ? "bg-[#b2430f] text-white border-[#2a1710] shadow-[2px_2px_0px_#2a1710]"
                             : "bg-[#fffdf5] text-[#2a1710] border-[#2a1710] shadow-[1.5px_1.5px_0px_#2a1710] hover:bg-[#fde047]"
                         }`}
                       >
@@ -325,7 +325,7 @@ export const ContactSection: React.FC = () => {
                   <div className="space-y-2.5 sm:space-y-3">
                     <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-[#fffdf5] border-2 border-[#2a1710]">
                       <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#334155]">
-                        <Clock className="w-4 h-4 text-[#e2571a]" />
+                        <Clock className="w-4 h-4 text-[#b2430f]" />
                         <span>Waktu Lokal (WIB)</span>
                       </div>
                       <span className="text-sm font-mono font-black text-[#2a1710] tabular-nums">
@@ -347,13 +347,14 @@ export const ContactSection: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setIsFlipped(true)}
-                        className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-mono font-bold text-[#e2571a] hover:text-[#2a1710] cursor-pointer"
+                        className="inline-flex items-center gap-1 py-1.5 text-[10px] sm:text-[11px] font-mono font-bold text-[#b2430f] hover:text-[#2a1710] cursor-pointer"
                       >
                         <span>Pesan Rahasia</span>
                         <RotateCw className="w-3 h-3" />
                       </button>
                     </div>
 
+                    {profileData.contact.instagram && (
                     <a
                                           href={profileData.contact.instagram}
                                           target="_blank"
@@ -366,6 +367,7 @@ export const ContactSection: React.FC = () => {
                                           </div>
                                           <ExternalLink className="w-3 h-3 text-[#475569] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                                         </a>
+                    )}
                   </div>
                 </div>
 
@@ -380,7 +382,7 @@ export const ContactSection: React.FC = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-mono font-black text-[#2a1710] uppercase flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[#e2571a]" />
+                        <Sparkles className="w-3.5 h-3.5 text-[#b2430f]" />
                         <span>Pesan Rahasia dari Dapur BonKu</span>
                       </span>
                     </div>

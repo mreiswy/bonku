@@ -41,7 +41,9 @@ export const profileData: ProfileData = {
     // Tempel link Google Form pemesanan Anda di sini.
     // Selama masih kosong (''), tombol pesan otomatis mengarah ke WhatsApp.
     orderFormUrl: "https://forms.gle/ahosfZ37VqRUw1Kw6",
-    instagram: "https://instagram.com/",
+    // Tempel link profil Instagram BonKu di sini (mis. "https://instagram.com/bonku.id").
+    // Selama masih kosong (''), tombol Instagram tidak ditampilkan di halaman kontak.
+    instagram: "",
     location: "Jember, Indonesia • COD area kampus",
   },
 };

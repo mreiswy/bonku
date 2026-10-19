@@ -10,7 +10,7 @@ interface RebuildConstructionOverlayProps {
 
 const comicSounds = [
   { icon: <Hammer className="w-5 h-5 text-[#f59e0b]" />, label: 'RACIK!' },
-  { icon: <Wrench className="w-5 h-5 text-[#e2571a]" />, label: 'ADUK!' },
+  { icon: <Wrench className="w-5 h-5 text-[#b2430f]" />, label: 'ADUK!' },
   { icon: <Cpu className="w-5 h-5 text-[#059669]" />, label: 'TAKAR!' },
   { icon: <Terminal className="w-5 h-5 text-[#7a4a1d]" />, label: 'KEMAS!' },
   { icon: <Check className="w-5 h-5 text-[#059669]" />, label: 'SAJI!' }
@@ -205,7 +205,7 @@ export const RebuildConstructionOverlay: React.FC<RebuildConstructionOverlayProp
                   duration: 0.36,
                   ease: 'easeInOut'
                 }}
-                className="absolute right-0 p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-[#e2571a] text-white shadow-2xl border-4 border-white drop-shadow-xl"
+                className="absolute right-0 p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-[#b2430f] text-white shadow-2xl border-4 border-white drop-shadow-xl"
               >
                 <Wrench className="w-8 h-8 sm:w-10 sm:h-10" />
               </motion.div>

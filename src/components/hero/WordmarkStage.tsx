@@ -303,7 +303,7 @@ export const WordmarkStage = forwardRef<WordmarkStageHandle, WordmarkStageProps>
             className="relative"
           >
             <div className="absolute -bottom-4 left-1 right-1 h-4 bg-[#b9975f]/40 rounded-full blur-[4px] transform scale-y-50" />
-            <div className="absolute -bottom-3 left-2 right-2 h-3 bg-[#e2571a]/50 rounded-full blur-[3px]" />
+            <div className="absolute -bottom-3 left-2 right-2 h-3 bg-[#b2430f]/50 rounded-full blur-[3px]" />
 
             <span
               className="absolute top-1 sm:top-2 left-0.5 text-[40px] min-[390px]:text-[48px] sm:text-7xl md:text-8xl font-black text-[#041628] tracking-tight select-none pointer-events-none"
@@ -318,7 +318,7 @@ export const WordmarkStage = forwardRef<WordmarkStageHandle, WordmarkStageProps>
               {letter.char}
             </span>
             <span
-              className="absolute top-0.5 left-0 text-[40px] min-[390px]:text-[48px] sm:text-7xl md:text-8xl font-black text-[#e2571a] tracking-tight select-none pointer-events-none"
+              className="absolute top-0.5 left-0 text-[40px] min-[390px]:text-[48px] sm:text-7xl md:text-8xl font-black text-[#b2430f] tracking-tight select-none pointer-events-none"
               aria-hidden="true"
             >
               {letter.char}

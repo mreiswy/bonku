@@ -413,7 +413,7 @@ export const RetortPouch: React.FC<RetortPouchProps> = ({
         )}
 
         {currentExpression === 'impact' && (
-          <motion.div className="absolute -top-7 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-[#e2571a] text-white text-[10px] font-extrabold shadow-lg border border-[#8a3410] whitespace-nowrap animate-pulse">
+          <motion.div className="absolute -top-7 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-[#b2430f] text-white text-[10px] font-extrabold shadow-lg border border-[#8a3410] whitespace-nowrap animate-pulse">
             &gt;_&lt; ADUH!
           </motion.div>
         )}

@@ -110,6 +110,8 @@ export const HeroSection: React.FC = () => {
 
       <KitchenDecorations />
 
+      <div className="absolute inset-0 z-[5] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(42,23,16,0.55)_0%,rgba(42,23,16,0.30)_45%,transparent_75%)]" />
+
       <div className="relative z-10 max-w-6xl mx-auto px-6 w-full flex-1 flex flex-col items-center justify-center -translate-y-16 sm:-translate-y-24">
         <div className="w-full flex flex-col items-center text-center">
           <WordmarkStage

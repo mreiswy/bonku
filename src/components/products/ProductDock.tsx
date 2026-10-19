@@ -84,7 +84,7 @@ export const ProductDock: React.FC<ProductDockProps> = ({
                   }}
                   className={`flex items-center justify-center gap-1.5 px-2 py-2 sm:px-3.5 sm:py-1.5 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-mono font-black transition-all cursor-pointer border-2 border-[#2a1710] w-full sm:w-auto shrink-0 ${
                     selectedCategory === cat.id
-                      ? 'bg-[#e2571a] text-white shadow-[2px_2px_0px_#2a1710] sm:shadow-[3px_3px_0px_#2a1710] -translate-y-0.5'
+                      ? 'bg-[#b2430f] text-white shadow-[2px_2px_0px_#2a1710] sm:shadow-[3px_3px_0px_#2a1710] -translate-y-0.5'
                       : 'bg-[#fffdf5] hover:bg-[#fdf3e3] text-[#2a1710] shadow-[1.5px_1.5px_0px_#2a1710] sm:shadow-[2px_2px_0px_#2a1710]'
                   }`}
                 >
@@ -157,7 +157,7 @@ export const ProductDock: React.FC<ProductDockProps> = ({
                     <span className="text-[10px] font-mono font-black text-[#2a1710] bg-[#fffdf5] px-1.5 py-0.5 rounded-md border border-[#2a1710]">
                       0{idx + 1}
                     </span>
-                    <span className="text-[11px] font-mono font-bold text-[#e2571a]">
+                    <span className="text-[11px] font-mono font-bold text-[#b2430f]">
                                           {project.category === 'abon' ? 'Abon Ayam' : 'Roti Isi Abon'}
                                         </span>
                                       </div>
@@ -182,7 +182,7 @@ export const ProductDock: React.FC<ProductDockProps> = ({
 
                   <div
                     className={`w-6 h-6 rounded-lg flex items-center justify-center border border-[#2a1710] transition-transform ${
-                      isSelected ? 'bg-[#e2571a] text-white rotate-90' : 'bg-[#fffdf5] text-[#2a1710]'
+                      isSelected ? 'bg-[#b2430f] text-white rotate-90' : 'bg-[#fffdf5] text-[#2a1710]'
                     }`}
                   >
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -217,7 +217,7 @@ export const ProductDock: React.FC<ProductDockProps> = ({
                     <h4 className="text-base sm:text-xl font-black text-[#2a1710]">
                       {activeProject.title}
                     </h4>
-                    <span className="text-[10px] sm:text-[11px] font-mono font-bold text-[#e2571a] bg-[#fce7c8] px-2 py-0.5 rounded-lg border border-[#e2571a]/40 shrink-0">
+                    <span className="text-[10px] sm:text-[11px] font-mono font-bold text-[#b2430f] bg-[#fce7c8] px-2 py-0.5 rounded-lg border border-[#e2571a]/40 shrink-0">
                       {activeProject.role}
                     </span>
                   </div>
@@ -264,7 +264,7 @@ export const ProductDock: React.FC<ProductDockProps> = ({
                 <button
                   type="button"
                   onClick={() => onSelectProject(activeProject)}
-                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 rounded-xl bg-[#e2571a] hover:bg-[#b2430f] text-white text-[11px] sm:text-xs font-mono font-black border-2 border-[#2a1710] shadow-[2.5px_2.5px_0px_#2a1710] sm:shadow-[3px_3px_0px_#2a1710] cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0"
+                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 rounded-xl bg-[#b2430f] hover:bg-[#8a3410] text-white text-[11px] sm:text-xs font-mono font-black border-2 border-[#2a1710] shadow-[2.5px_2.5px_0px_#2a1710] sm:shadow-[3px_3px_0px_#2a1710] cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
                                     <span>Lihat Detail &amp; Pesan</span>

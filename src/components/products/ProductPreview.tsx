@@ -53,7 +53,7 @@ export const ProductPreview: React.FC<ProductPreviewProps> = ({
         ) : (
           // fallback placeholder
           <div className="flex flex-col items-center justify-center p-6 text-center space-y-3">
-            <div className="p-4 rounded-2xl bg-[#fce7c8] border-2 border-[#2a1710] text-[#e2571a] shadow-[3px_3px_0px_#2a1710] group-hover/preview:scale-110 transition-transform">
+            <div className="p-4 rounded-2xl bg-[#fce7c8] border-2 border-[#2a1710] text-[#b2430f] shadow-[3px_3px_0px_#2a1710] group-hover/preview:scale-110 transition-transform">
               <ImageIcon className="w-8 h-8" />
             </div>
 
@@ -61,7 +61,7 @@ export const ProductPreview: React.FC<ProductPreviewProps> = ({
               <div className="text-base font-black text-[#2a1710] tracking-tight">
                 {project.title}
               </div>
-              <p className="text-xs font-mono font-bold text-[#e2571a] mt-0.5">
+              <p className="text-xs font-mono font-bold text-[#b2430f] mt-0.5">
                 Foto Produk BonKu
               </p>
             </div>

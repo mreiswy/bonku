@@ -24,7 +24,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-xl border-2 border-[#2a1710] bg-[#e2571a] px-5 py-2.5 text-sm font-bold text-white shadow-[3px_3px_0px_#2a1710]"
+            className="rounded-xl border-2 border-[#2a1710] bg-[#b2430f] px-5 py-2.5 text-sm font-bold text-white shadow-[3px_3px_0px_#2a1710]"
           >
             Muat ulang halaman
           </button>

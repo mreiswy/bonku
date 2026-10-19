@@ -29,7 +29,7 @@ const categoryConfig: Record<
       nodeBg: 'bg-[#ef4444]',
       nodeText: 'text-white',
       tagBg: 'bg-[#fee2e2]',
-      tagText: 'text-[#dc2626]',
+      tagText: 'text-[#b91c1c]',
       tagBorder: 'border-[#2a1710]'
     },
     'Formulir': {
@@ -37,7 +37,7 @@ const categoryConfig: Record<
       nodeBg: 'bg-[#f6a83c]',
       nodeText: 'text-[#2a1710]',
       tagBg: 'bg-[#fce7c8]',
-      tagText: 'text-[#e2571a]',
+      tagText: 'text-[#b2430f]',
       tagBorder: 'border-[#2a1710]'
     },
     'Konfirmasi': {
@@ -181,17 +181,17 @@ export const OrderTimeline: React.FC = () => {
                     </div>
 
                     <div className="flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg sm:rounded-xl bg-[#fdf3e3] border-2 border-[#2a1710] text-[10px] sm:text-xs font-mono font-black text-[#2a1710] shadow-[1.5px_1.5px_0px_#2a1710] sm:shadow-[2px_2px_0px_#2a1710]">
-                      <Calendar className="w-3.5 h-3.5 text-[#e2571a]" />
+                      <Calendar className="w-3.5 h-3.5 text-[#b2430f]" />
                       <span>{item.period}</span>
                     </div>
                   </div>
 
                   {/* role and organization */}
                   <div>
-                    <h3 className="text-lg sm:text-2xl font-black text-[#2a1710] tracking-tight group-hover:text-[#e2571a] transition-colors">
+                    <h3 className="text-lg sm:text-2xl font-black text-[#2a1710] tracking-tight group-hover:text-[#b2430f] transition-colors">
                       {item.role}
                     </h3>
-                    <div className="text-xs sm:text-sm font-mono font-bold text-[#e2571a] mt-0.5 sm:mt-1">
+                    <div className="text-xs sm:text-sm font-mono font-bold text-[#b2430f] mt-0.5 sm:mt-1">
                       {item.organization}
                     </div>
                   </div>

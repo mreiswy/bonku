@@ -27,7 +27,7 @@ export const SauceActionButton: React.FC<SauceActionButtonProps> = ({
             transition={{ duration: 0.18 }}
             type="button"
             onClick={onTriggerFlood}
-            className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-[#e2571a] hover:bg-[#b2430f] text-white text-xs font-mono font-bold shadow-lg shadow-[#e2571a]/20 transition-all cursor-pointer hover:scale-105 active:scale-95 group"
+            className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-[#b2430f] hover:bg-[#8a3410] text-white text-xs font-mono font-bold shadow-lg shadow-[#e2571a]/20 transition-all cursor-pointer hover:scale-105 active:scale-95 group"
             title="Siram konten dengan saus bumbu"
                       >
                         <Waves className="w-4 h-4 group-hover:rotate-12 transition-transform" />

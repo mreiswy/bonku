@@ -20,7 +20,7 @@ export function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="min-h-svh bg-[#fdf3e3] text-[#2a1710] selection:bg-[#e2571a] selection:text-white">
+      <div className="min-h-svh bg-[#fdf3e3] text-[#2a1710] selection:bg-[#b2430f] selection:text-white">
       {showWelcome && (
         <WelcomeAnimation onComplete={() => setShowWelcome(false)} />
       )}

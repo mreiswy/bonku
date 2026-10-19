@@ -76,7 +76,7 @@ export const ProductPhotoCard: React.FC<ProductPhotoCardProps> = ({ isFlooded })
                   <MapPin className="w-4 h-4 text-[#7a4a1d]" />
                   <span>{profileData.contact.location}</span>
                 </div>
-                <span className="text-[#e2571a] font-bold">{profileData.status}</span>
+                <span className="text-[#b2430f] font-bold">{profileData.status}</span>
               </motion.div>
     </motion.div>
   );

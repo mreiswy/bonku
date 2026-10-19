@@ -12,7 +12,7 @@ export const ProductHighlights: React.FC<ProductHighlightsProps> = ({ isFlooded 
   const pillars = [
       {
         id: 'produk',
-        icon: <Code2 className="w-5 h-5 text-[#e2571a]" />,
+        icon: <Code2 className="w-5 h-5 text-[#b2430f]" />,
         title: 'Abon Ayam Pouch 100g',
         subtitle: 'Produk Utama & Andalan',
         desc: 'Abon ayam rumahan yang dimasak hingga kering dengan bumbu rempah alami, lalu dikemas dalam retort pouch food grade 100 gram. Hasilnya gurih, bergizi, awet disimpan di suhu ruang, dan siap disantap langsung bersama nasi hangat.',
@@ -20,7 +20,7 @@ export const ProductHighlights: React.FC<ProductHighlightsProps> = ({ isFlooded 
       },
       {
         id: 'mutu',
-        icon: <Cpu className="w-5 h-5 text-[#e2571a]" />,
+        icon: <Cpu className="w-5 h-5 text-[#b2430f]" />,
         title: 'Higienis, Bergizi, Awet',
         subtitle: 'Standar Mutu Produk',
         desc: 'Seluruh proses mulai dari pemilihan ayam, pengeringan, sampai pengemasan dikerjakan dengan peralatan bersih dan kemasan food grade. Tanpa pengawet sintetis berbahaya, sehingga aman dikonsumsi rutin untuk lauk sehari-hari.',
@@ -76,7 +76,7 @@ export const ProductHighlights: React.FC<ProductHighlightsProps> = ({ isFlooded 
                 : { rotate: 0, y: 0, x: 0 }
             }
             className={`flex flex-col items-center justify-center p-3 rounded-xl text-center transition-all cursor-pointer ${activePillar === idx
-              ? 'bg-[#e2571a] text-white shadow-md'
+              ? 'bg-[#b2430f] text-white shadow-md'
               : 'hover:bg-[#fdf3e3] text-[#334155] hover:text-[#2a1710]'
               }`}
           >
