@@ -78,21 +78,21 @@ node --experimental-strip-types src/data/bonkuData.check.ts
 
 Sistem backend terintegrasi langsung dengan database SQLite lokal (`bonku.db`) melalui Vite middleware tanpa proses server terpisah.
 
-### 1. Pemesanan Langsung di Web
-- Pelanggan dapat memesan lewat tombol **"Pesan di Web"** di Hero banner atau **"Pesan Langsung (Web)"** di modal detail produk.
-- Form menampilkan countdown timer **"Sisa Waktu PO"**.
+### 1. Halaman Pemesanan Web (`/pesan`)
+- Dapat diakses langsung di URL `/pesan` atau lewat tombol **"Pesan di Web"** di Hero banner dan modal detail produk.
+- Menampilkan countdown timer **"Sisa Waktu PO"**.
 - Begitu waktu PO habis (atau ditutup admin), form otomatis terkunci dengan status **"PO Ditutup"** dan tombol diarahkan ke WhatsApp untuk tanya sisa stok.
 
-### 2. Mengakses Dashboard Admin
-1. Gulir ke bagian paling bawah (footer) website.
-2. Klik tombol **"Area Admin"** dengan ikon gembok.
-3. Masukkan 4 digit PIN admin (default pengujian: `1234`).
-4. Fitur Dashboard:
-   - **Ringkasan & Metrik**: Omset penjualan, total pesanan, produk terjual, dan status buka/tutup form PO.
-   - **Daftar Pesanan**: Filter status (Pending, Dikonfirmasi, Siap COD, Selesai, Batal), pencarian nama/WA, ubah status pesanan, dan link chat WA pelanggan.
-   - **Catat Pesanan Offline**: Input pesanan tunai/COD offline langsung ke SQLite.
-   - **Batas Waktu & Batch PO**: Atur tanggal/jam tutup PO (`datetime-local`), kuota pouch & roti, toggle buka/tutup form manual, dan ubah pesan penutup.
-   - **Ekspor CSV**: Tombol unduh seluruh data pesanan ke file `.csv` untuk pembukuan Excel.
+### 2. Halaman Dashboard Admin (`/admin`)
+- Dapat diakses langsung di URL `/admin` atau klik tombol **"Area Admin"** di footer website.
+- Dilengkapi proteksi PIN 4 digit (default pengujian: `1234`).
+- Tampilan halaman penuh (*full page*) tanpa batasan modal dialog/overflow, sehingga nyaman digunakan di desktop maupun HP.
+- Fitur Dashboard:
+  - **Ringkasan & Metrik**: Omset penjualan, total pesanan, produk terjual, dan status buka/tutup form PO.
+  - **Daftar Pesanan**: Filter status (Pending, Dikonfirmasi, Siap COD, Selesai, Batal), pencarian nama/WA, ubah status pesanan, dan link chat WA pelanggan.
+  - **Catat Pesanan Offline**: Input pesanan tunai/COD offline langsung ke SQLite.
+  - **Batas Waktu & Batch PO**: Atur tanggal/jam tutup PO (`datetime-local`), kuota pouch & roti, toggle buka/tutup form manual, dan ubah pesan penutup.
+  - **Ekspor CSV**: Tombol unduh seluruh data pesanan ke file `.csv` untuk pembukuan Excel.
 
 ---
 

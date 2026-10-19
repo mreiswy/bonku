@@ -513,7 +513,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                 onClick={() => setActiveTab(tab.id as TabType)}
                 className={`px-4 py-2.5 rounded-t-2xl font-mono text-xs font-bold border-t-3 border-x-3 border-[#2a1710] flex items-center gap-2 cursor-pointer transition-colors whitespace-nowrap ${
                   isActive
-                    ? 'bg-[#fffdf5] text-[#b2430f] -mb-[3px] pb-3 shadow-[0px_-2px_0px_#2a1710]'
+                    ? 'bg-[#fffdf5] text-[#b2430f] -mb-0.75 pb-3 shadow-[0px_-2px_0px_#2a1710]'
                     : 'bg-[#faeee0] text-[#5c3e32] hover:bg-[#fffdf5]'
                 }`}
               >
