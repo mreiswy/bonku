@@ -2,15 +2,19 @@
 
 ## 1. Ringkasan Eksekutif
 Fitur ini menambahkan integrasi database SQLite lokal (`bonku.db`) dan Dashboard Admin interaktif ke dalam website BonKu. Sistem ini memungkinkan:
-1. Pelanggan dapat melakukan pemesanan langsung dari website (tersimpan ke database lokal dengan konfirmasi otomatis via WhatsApp).
-2. Pemilik bisnis (admin) dapat memantau pesanan masuk, mengubah status pesanan (Pending, Dikonfirmasi, Siap COD, Selesai, Dibatalkan), mencatat pesanan manual offline, memantau kuota batch pre-order (PO), melihat analitik penjualan, dan mengekspor data ke CSV.
-3. Seluruh antarmuka mempertahankan tema visual BonKu yang hangat, ramah, dan taktil (krem `#fdf3e3`, aksen terakota `#b2430f`, border tegas `#2a1710`, bayangan kartun neo-brutalis).
+1. **Formulir Pemesanan Langsung di Website**: Pelanggan dapat memesan langsung dari website dengan kalkulasi harga otomatis, tersimpan ke SQLite, dan dilengkapi nomor pesanan resmi (`BK-...`) serta konfirmasi WhatsApp otomatis.
+2. **Otomatisasi Buka/Tutup Form Berdasarkan Batas Waktu (PO Deadline) & Kuota**:
+   - Form memiliki batas waktu penutupan (tanggal & jam tutup PO).
+   - Menampilkan countdown timer "Sisa Waktu Pemesanan".
+   - Jika batas waktu habis (atau ditutup manual oleh admin), form otomatis beralih ke status **"PO Ditutup"** dengan pesan ramah dan tombol diarahkan untuk tanya ketersediaan stok via WhatsApp.
+3. **Dashboard Admin BonKu**: Pemilik bisnis dapat memantau pesanan masuk, mengubah status pesanan (Pending, Dikonfirmasi, Siap COD, Selesai, Dibatalkan), mencatat pesanan offline manual, mengatur tanggal/jam batas waktu PO, mengubah kuota produksi, melihat statistik omset, dan mengekspor rekap pesanan ke CSV.
+4. **Kepatuhan Tema Visual**: Seluruh antarmuka mempertahankan tema visual BonKu yang hangat, ramah, dan taktil (krem `#fdf3e3`, aksen terakota `#b2430f`, border tegas `#2a1710`, bayangan kartun neo-brutalis).
 
 ---
 
 ## 2. Kepatuhan Arsitektur & Aturan Proyek (`AI_INSTRUCTION.md`)
 - **Framework & Runtime**: Memanfaatkan stack aktif (React 19 + TypeScript + Vite 8 + Tailwind CSS v4 + Framer Motion + Lucide React).
-- **Backend Ringan & Zero Overhead**: Dijalankan langsung melalui Vite Dev Server Middleware menggunakan plugin internal Vite (`vite-plugin-api.ts`) dan `better-sqlite3`. Pengembang cukup menjalankan `pnpm run dev` tanpa perlu menjalankan terminal terpisah atau `concurrently`.
+- **Backend Ringan & Zero Overhead**: Dijalankan langsung melalui Vite Dev Server Middleware menggunakan plugin internal Vite (`server/vitePluginApi.ts`) dan `better-sqlite3`. Pengembang cukup menjalankan `pnpm run dev` tanpa perlu menjalankan terminal terpisah atau `concurrently`.
 - **Integritas Bisnis**: Menggunakan produk asli BonKu (`Abon Ayam Pouch 100g` @ Rp 18.000 dan `Roti Isi Abon` @ Rp 6.000) dari `src/data/bonkuData.ts`.
 - **Konsistensi Visual**: Tidak menggunakan template korporat asing; seluruh elemen UI dashboard dan modal menggunakan token warna, sudut lengkung (`rounded-2xl` / `rounded-3xl`), border `#2a1710`, dan bayangan offset yang identik dengan komponen BonKu lainnya.
 
@@ -40,16 +44,17 @@ CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 ```
 
-### 3.2 Tabel `batches` (Manajemen Batch Pre-Order)
+### 3.2 Tabel `batches` (Manajemen Batch Pre-Order & Waktu Habis)
 ```sql
 CREATE TABLE IF NOT EXISTS batches (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   batch_name TEXT NOT NULL,                  -- Contoh: "PO Batch 1 - Oktober"
-  start_date TEXT,
-  end_date TEXT,
+  start_date TEXT,                           -- ISO String / YYYY-MM-DD HH:mm
+  end_date TEXT NOT NULL,                    -- Batas Waktu Penutupan Form (ISO String)
   quota_pouch INTEGER DEFAULT 50,
   quota_roti INTEGER DEFAULT 30,
-  is_active INTEGER DEFAULT 1,
+  is_active INTEGER DEFAULT 1,               -- 1 = Aktif, 0 = Ditutup Manual
+  closed_message TEXT DEFAULT 'Pre-Order batch ini sudah ditutup. Pantau pengumuman batch berikutnya atau hubungi WhatsApp kami untuk menanyakan sisa stok!',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 ```
@@ -60,7 +65,7 @@ CREATE TABLE IF NOT EXISTS settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
--- Default: admin_pin = "1234"
+-- Menyimpan: admin_pin (default "1234"), store_announcement, dll.
 ```
 
 ---
@@ -75,28 +80,35 @@ Semua endpoint dilayani oleh Vite server middleware (atau server Node untuk prod
 | `POST` | `/api/auth/verify` | Validasi PIN admin |
 | `POST` | `/api/auth/change-pin` | Ubah PIN admin |
 | `GET` | `/api/orders` | Ambil daftar pesanan (dukungan query: `status`, `search`) |
-| `POST` | `/api/orders` | Buat pesanan baru (dari form web atau manual admin) |
+| `POST` | `/api/orders` | Buat pesanan baru (menolak order jika batch sudah habis/ditutup) |
 | `PATCH` | `/api/orders/:id` | Update status pesanan / status pembayaran |
 | `DELETE` | `/api/orders/:id` | Hapus pesanan |
 | `GET` | `/api/stats` | Rekapitulasi: Total omset, total item pouch/roti terjual, pesanan aktif |
-| `GET` | `/api/batch/active` | Data batch pre-order aktif & kalkulasi sisa kuota |
-| `POST` | `/api/batch/active` | Update nama batch & kuota produksi |
+| `GET` | `/api/batch/active` | Data batch pre-order aktif, batas waktu `end_date`, kalkulasi sisa kuota, dan status `is_expired` |
+| `POST` | `/api/batch/active` | Update nama batch, batas waktu `end_date`, kuota, status `is_active`, dan pesan penutup |
 | `GET` | `/api/export/csv` | Download rekap pesanan format CSV |
 
 ---
 
 ## 5. Komponen Antarmuka & Alur Interaksi
 
-### 5.1 Modal Pemesanan Pelanggan (`QuickOrderModal.tsx`)
-- Tombol akses di Section Hero, Katalog Produk, dan Kontak: "Pesan Langsung di Web" (selain opsi Google Form & WhatsApp).
-- Form interaktif dengan validasi:
-  - Pilihan jumlah Abon Ayam Pouch 100g (Rp 18.000) & Roti Isi Abon (Rp 6.000).
-  - Ringkasan kalkulasi harga seketika (subtotal + total).
-  - Input Nama Lengkap, Nomor WhatsApp, Titik Antar / COD Kampus, dan Catatan.
-- Saat dikirim (`Submit`):
-  - Menyimpan data ke SQLite via `POST /api/orders`.
-  - Menampilkan modal sukses dengan ID Pesanan resmi (misal `BK-20261019-7F3A`).
-  - Tombol aksi: "Buka WhatsApp untuk Konfirmasi Otomatis" yang memuat pesan siap kirim dengan nomor pesanan tersebut.
+### 5.1 Formulir Pemesanan Web & Logika Waktu Habis (`QuickOrderModal.tsx` & Section Pemesanan)
+- **Tombol Pemicu**: "Pesan Sekarang (Web Form)" di Hero, Katalog Produk, dan Bagian Kontak.
+- **Logika Otomatis Buka / Tutup Form**:
+  - Saat modal dibuka atau dimuat, sistem mengecek batas waktu dari `activeBatch.end_date` dan `activeBatch.is_active`.
+  - **Kondisi 1: Waktu Masih Tersedia (PO Open)**:
+    - Menampilkan lencana & countdown timer: `"Batas Pemesanan: [Sisa: X hari Y jam Z menit]"` dengan efek animasi pulsa halus.
+    - Pelanggan memilih varian Abon Ayam Pouch 100g (Rp 18.000) dan/atau Roti Isi Abon (Rp 6.000).
+    - Ringkasan kalkulasi otomatis subtotal & total.
+    - Input nama pemesan, nomor WhatsApp, titik pengantaran / COD kampus, dan catatan.
+    - Tombol kirim pesanan taktil.
+    - Setelah berhasil dikirim: menampilkan nomor pesanan (`BK-...`) dan tombol satu-klik kirim konfirmasi WhatsApp.
+  - **Kondisi 2: Waktu Habis atau Ditutup Manual (PO Closed)**:
+    - Form otomatis beralih ke tampilan informatif bergaya BonKu:
+      - Ikon jam / gembok ramah.
+      - Judul: **"Pre-Order Saat Ini Telah Ditutup"**.
+      - Pesan penjelas dari database (misal: *"Waktu pre-order batch ini telah berakhir. Terima kasih atas antusiasme teman-teman! Hubungi admin untuk tanya sisa stok."*).
+      - Tombol langsung: **"Hubungi via WhatsApp"** untuk menanyakan sisa stok atau pre-order batch berikutnya.
 
 ### 5.2 Akses Admin & Modal PIN (`AdminAuthModal.tsx`)
 - Tautan taktil di bagian bawah website (footer dock): Tombol "Area Admin BonKu" dengan ikon gembok rapi.
@@ -106,16 +118,21 @@ Semua endpoint dilayani oleh Vite server middleware (atau server Node untuk prod
 ### 5.3 Admin Dashboard (`AdminDashboardModal.tsx`)
 Ditata dengan tab bernuansa krem dan kartu taktil:
 1. **Tab Ringkasan (Overview)**:
-   - Kartu metrik: Total Omset (Rp), Total Pesanan Masuk, Pouch Terjual, Rti Terjual.
+   - Status PO saat ini: `OPEN (Sisa Waktu: ...)` atau `CLOSED`.
+   - Kartu metrik: Total Omset (Rp), Total Pesanan Masuk, Pouch Terjual, Roti Terjual.
    - Progress bar kuota Batch PO aktif (Pouch & Roti).
-2. **Tab Pesanan (Orders)**:
+2. **Tab Pengaturan Batas Waktu PO & Batch**:
+   - Input Nama Batch (misal: "PO Batch 2 - Pekan UTS").
+   - Input Tanggal & Jam Batas Tutup Form (`datetime-local`).
+   - Switch Buka / Tutup PO Manual (Override).
+   - Input kuota maksimal pouch dan roti.
+   - Kustomisasi pesan penutup saat form habis waktu.
+3. **Tab Pesanan (Orders)**:
    - Filter cepat: `Semua`, `Pending`, `Dikonfirmasi`, `Siap COD`, `Selesai`, `Batal`.
    - Pencarian real-time berdasarkan Nama atau Nomor HP.
    - Kartu daftar pesanan lengkap dengan rincian item, catatan, badge status warna, tombol ubah status, dan tombol pintas WhatsApp pelanggan.
-3. **Tab Tambah Pesanan Manual**:
+4. **Tab Tambah Pesanan Manual**:
    - Form cepat bagi admin untuk mencatat penjualan offline/tunai langsung ke database.
-4. **Tab Batch & Kuota**:
-   - Form pengaturan nama batch dan target kuota produksi.
 5. **Aksi Header**:
    - Tombol "Ekspor CSV" untuk rekap pembukuan Excel.
    - Tombol Keluar (Logout).
@@ -123,15 +140,19 @@ Ditata dengan tab bernuansa krem dan kartu taktil:
 ---
 
 ## 6. Penanganan Galat & Edge Cases
+- **Pengecekan Waktu di Server (Anti-Bypass)**: Server API memvalidasi `end_date` saat pesanan dikirim. Jika waktu sudah lewat, server menolak order dengan status HTTP 400 dan pesan bahwa PO telah ditutup.
+- **Zona Waktu Konsisten**: Menggunakan zona waktu Indonesia Barat (`Asia/Jakarta`, UTC+7) untuk perbandingan waktu.
 - **Database File Locking / Concurrency**: Mengaktifkan WAL mode (`PRAGMA journal_mode = WAL;`) pada SQLite untuk pembacaan bersamaan yang cepat dan aman.
 - **Validasi Data Input**: Sanitasi string nama, validasi nomor HP angka, kalkulasi ulang total harga di backend agar tidak bisa dimanipulasi dari frontend.
-- **Offline / Server Tidak Tersedia**: Jika API server tidak merespons, frontend memberikan pesan ramah dan mengarahkan pengguna secara elegan ke WhatsApp langsung.
 
 ---
 
 ## 7. Rencana Pengujian & Verifikasi
 - Validasi build TypeScript & Vite: `npm run build`
 - Validasi Linting: `npm run lint`
-- Pemeriksaan konsistensi data: `node --experimental-strip-types src/data/bonkuData.check.ts`
-- Pengujian fungsional API: pembuatan pesanan, kalkulasi omset, perubahan status, dan ekspor CSV.
+- Pengujian fungsional form:
+  - Form terbuka saat `end_date` masih di masa depan.
+  - Form otomatis terkunci/menutup jika `end_date` telah lewat atau dinonaktifkan via dashboard admin.
+  - Pembuatan pesanan sukses menyimpan ke `bonku.db` dan menerbitkan nomor pesanan `BK-...`.
+- Pengujian admin: verifikasi PIN, perubahan batas waktu PO, update status pesanan, dan ekspor CSV.
 - Verifikasi antarmuka: memastikan tidak ada pergeseran visual atau perubahan warna pada halaman utama BonKu.
