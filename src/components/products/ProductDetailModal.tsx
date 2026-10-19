@@ -73,7 +73,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-4xl bg-[#fffdf5] rounded-2xl sm:rounded-[32px] border-2 sm:border-4 border-[#2a1710] shadow-[6px_6px_0px_#2a1710] sm:shadow-[12px_12px_0px_#2a1710] p-4 sm:p-8 space-y-4 sm:space-y-6 z-10 my-4 sm:my-8 max-h-[92vh] overflow-y-auto"
+          className="relative w-full max-w-4xl bg-[#fffdf5] rounded-2xl sm:rounded-4xl border-2 sm:border-4 border-[#2a1710] shadow-[6px_6px_0px_#2a1710] sm:shadow-[12px_12px_0px_#2a1710] p-4 sm:p-8 space-y-4 sm:space-y-6 z-10 my-4 sm:my-8 max-h-[92vh] overflow-y-auto"
         >
           {/* modal header and close button */}
           <div className="flex items-start justify-between gap-3 sm:gap-4 border-b-2 border-[#2a1710]/20 pb-3 sm:pb-4">
@@ -109,7 +109,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* preview frame */}
           <ProductPreview
                       project={project}
-                      className="aspect-[16/10] w-full max-h-[340px]"
+                      className="aspect-16/10 w-full max-h-85"
                     />
 
           {/* performance metrics */}
@@ -126,7 +126,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   <div className={`text-[9px] sm:text-[10px] font-mono font-bold uppercase ${labelColor} leading-tight`}>
                     {m.label}
                   </div>
-                  <div className="text-[11px] sm:text-base font-black text-[#2a1710] mt-0.5 leading-tight break-words">
+                  <div className="text-[11px] sm:text-base font-black text-[#2a1710] mt-0.5 leading-tight wrap-break-word">
                     {m.value}
                   </div>
                 </div>

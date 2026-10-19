@@ -207,7 +207,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenAdmin }) =
             stiffness: 220,
             damping: 24,
           }}
-          className="p-5 sm:p-12 rounded-[24px] sm:rounded-[36px] bg-[#fffdf5] border-2 sm:border-3 border-[#2a1710] shadow-[6px_6px_0px_#2a1710] sm:shadow-[10px_10px_0px_#2a1710] space-y-5 sm:space-y-8"
+          className="p-5 sm:p-12 rounded-3xl sm:rounded-[36px] bg-[#fffdf5] border-2 sm:border-3 border-[#2a1710] shadow-[6px_6px_0px_#2a1710] sm:shadow-[10px_10px_0px_#2a1710] space-y-5 sm:space-y-8"
         >
           {/* header */}
           <div className="space-y-3 sm:space-y-4">

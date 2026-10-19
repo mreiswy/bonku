@@ -88,7 +88,7 @@ export interface BatchRecord {
 
 export function getActiveBatch(): (BatchRecord & { is_expired: boolean }) | null {
   const db = getDb();
-  const row = db.prepare('SELECT * FROM batches ORDER BY id DESC LIMIT 1').get() as BatchRecord | undefined;
+  const row = db.prepare('SELECT * FROM batches ORDER BY id DESC LIMIT 1').get() as unknown as BatchRecord | undefined;
   if (!row) {
     return null;
   }

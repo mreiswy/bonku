@@ -93,7 +93,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuickOrder }) =>
   };
 
   return (
-    <section className="relative w-full h-svh min-h-[700px] flex flex-col justify-between pt-16 pb-10 overflow-hidden select-none">
+    <section className="relative w-full h-svh min-h-175 flex flex-col justify-between pt-4 md:pt-16 pb-10 overflow-hidden select-none">
       <h1 className="sr-only">BonKu — Abon Ayam Rumahan Higienis, Bergizi, Awet di Suhu Ruang</h1>
 
       <div className="absolute inset-0 z-0 pointer-events-auto">
@@ -114,7 +114,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuickOrder }) =>
 
       <KitchenDecorations />
 
-      <div className="absolute inset-0 z-[5] pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(42,23,16,0.55)_0%,rgba(42,23,16,0.30)_45%,transparent_75%)]" />
+      <div className="absolute inset-0 z-5 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(42,23,16,0.55)_0%,rgba(42,23,16,0.30)_45%,transparent_75%)]" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 w-full flex-1 flex flex-col items-center justify-center -translate-y-16 sm:-translate-y-24">
         <div className="w-full flex flex-col items-center text-center">

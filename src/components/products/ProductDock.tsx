@@ -21,24 +21,10 @@ interface ProductDockProps {
 export const ProductDock: React.FC<ProductDockProps> = ({
   projects,
   selectedCategory,
-  onSelectCategory,
   onSelectProject
 }) => {
   const [activeProjectId, setActiveProjectId] = useState<string>(projects[0]?.id || '');
 
-  const categories: { id: ProjectCategory; label: string; count: number }[] = [
-      { id: 'all', label: 'Semua Produk', count: projects.length },
-      {
-        id: 'abon',
-        label: 'Abon Ayam',
-        count: projects.filter((p) => p.category === 'abon').length
-      },
-      {
-        id: 'roti',
-        label: 'Roti Isi Abon',
-        count: projects.filter((p) => p.category === 'roti').length
-      }
-    ];
 
   const filteredProjects =
     selectedCategory === 'all'
@@ -56,55 +42,7 @@ export const ProductDock: React.FC<ProductDockProps> = ({
 
       {/* category and project filter navigation */}
       <div className="relative z-10 max-w-7xl mx-auto w-full pt-20 sm:pt-24 px-4 sm:px-12 flex flex-col gap-2 sm:gap-3 shrink-0">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-          <div>
-            <span className="text-[10px] sm:text-xs font-mono font-black uppercase tracking-wider text-[#2a1710] bg-[#fde047] px-2 py-0.5 sm:px-3 sm:py-0.5 rounded-lg border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] inline-block mb-1">
-                          01 // KATALOG PRODUK
-                        </span>
-                        <h3 className="text-lg sm:text-2xl font-black text-[#2a1710] tracking-tight bg-[#fffdf5] border-2 border-[#2a1710] shadow-[2.5px_2.5px_0px_#2a1710] sm:shadow-[3px_3px_0px_#2a1710] rounded-xl px-2.5 py-1 sm:px-3.5 sm:py-1.5 w-fit">
-                                                  Pilih Produk BonKu
-                                                </h3>
-          </div>
-
-          {/* category selection */}
-          <div className="grid grid-cols-3 sm:flex sm:items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
-            {categories.map((cat) => {
-              const shortLabel =
-                              cat.id === 'all' ? 'Semua' : cat.id === 'abon' ? 'Abon' : 'Roti';
-
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => {
-                    onSelectCategory(cat.id);
-                    const nextFiltered =
-                      cat.id === 'all' ? projects : projects.filter((p) => p.category === cat.id);
-                    if (nextFiltered[0]) setActiveProjectId(nextFiltered[0].id);
-                  }}
-                  className={`flex items-center justify-center gap-1.5 px-2 py-2 sm:px-3.5 sm:py-1.5 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-mono font-black transition-all cursor-pointer border-2 border-[#2a1710] w-full sm:w-auto shrink-0 ${
-                    selectedCategory === cat.id
-                      ? 'bg-[#b2430f] text-white shadow-[2px_2px_0px_#2a1710] sm:shadow-[3px_3px_0px_#2a1710] -translate-y-0.5'
-                      : 'bg-[#fffdf5] hover:bg-[#fdf3e3] text-[#2a1710] shadow-[1.5px_1.5px_0px_#2a1710] sm:shadow-[2px_2px_0px_#2a1710]'
-                  }`}
-                >
-                  <span className="sm:hidden">{shortLabel}</span>
-                  <span className="hidden sm:inline">{cat.label}</span>
-                  <span
-                    className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                      selectedCategory === cat.id
-                        ? 'bg-white/30 text-white'
-                        : 'bg-[#fdf3e3] text-[#2a1710] border border-[#2a1710]/40'
-                    }`}
-                  >
-                    {cat.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
+        
         <div className="flex lg:hidden items-center gap-2 overflow-x-auto no-scrollbar py-0.5 w-full shrink-0">
           {filteredProjects.map((project, idx) => {
             const isSelected = activeProject.id === project.id;
@@ -137,7 +75,7 @@ export const ProductDock: React.FC<ProductDockProps> = ({
       {/* project inspection stage */}
       <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-12 mt-2 sm:mt-auto sm:my-auto flex flex-col lg:grid lg:grid-cols-12 gap-3 sm:gap-5 items-stretch lg:items-center">
         {/* desktop project selector */}
-        <div className="hidden lg:flex lg:col-span-5 flex-col justify-center space-y-2.5 max-h-[380px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#e2571a] scrollbar-track-[#fffdf5]/50">
+        <div className="hidden lg:flex lg:col-span-5 flex-col justify-center space-y-2.5 max-h-95 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#e2571a] scrollbar-track-[#fffdf5]/50">
           {filteredProjects.map((project, idx) => {
             const isSelected = activeProject.id === project.id;
 
