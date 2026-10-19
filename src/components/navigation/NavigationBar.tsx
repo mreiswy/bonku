@@ -105,10 +105,10 @@ export const NavigationBar: React.FC = () => {
   return (
     <>
       <header
-        className={`sticky top-0 z-40 w-full transition-all duration-300 md:fixed md:top-0 md:left-0 md:right-0 ${
+        className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
           isScrolled
-            ? 'bg-[#8a3410]/95 backdrop-blur-xl border-b border-[#f6a83c]/35 py-2.5 sm:py-3 shadow-[0_8px_32px_rgba(138,52,16,0.45)]'
-            : 'bg-[#8a3410]/95 backdrop-blur-xl border-b border-[#f6a83c]/35 py-3 shadow-[0_4px_20px_rgba(42,23,16,0.3)] md:bg-transparent md:border-transparent md:shadow-none md:py-4 sm:md:py-5'
+            ? 'bg-[#8a3410] border-b-2 border-[#f6a83c]/50 py-2.5 sm:py-3 shadow-[0_6px_24px_rgba(42,23,16,0.5)] md:bg-[#8a3410]/95 md:backdrop-blur-xl md:border-[#f6a83c]/35'
+            : 'bg-[#8a3410] border-b-2 border-[#f6a83c]/50 py-2.5 sm:py-3 shadow-[0_4px_20px_rgba(42,23,16,0.35)] md:bg-transparent md:border-b-0 md:shadow-none md:py-4 sm:md:py-5'
         }`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between">
@@ -208,7 +208,7 @@ export const NavigationBar: React.FC = () => {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.22, ease: 'easeOut' }}
-              className="md:hidden border-t border-[#f6a83c]/25 mt-3 pt-3 pb-4 px-4 sm:px-6 max-h-[calc(100svh-68px)] overflow-y-auto"
+              className="md:hidden border-t-2 border-[#f6a83c]/30 mt-2.5 pt-3 pb-4 px-4 sm:px-6 bg-[#8a3410] max-h-[calc(100svh-68px)] overflow-y-auto shadow-2xl"
             >
               <div className="flex flex-col gap-1.5">
                 {navItems.map((item) => {
@@ -266,7 +266,7 @@ export const NavigationBar: React.FC = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs z-30 md:hidden"
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 md:hidden"
             aria-hidden="true"
           />
         )}

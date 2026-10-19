@@ -24,7 +24,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       <div className={`inline-flex items-center gap-2.5 ${className}`}>
         <div className="relative flex items-center justify-center transition-transform group-hover:scale-105 select-none">
           <img
-            src="/logo-bonku-bg.png"
+            src="/logo-icon.webp"
             alt="BonKu"
             className={`${currentSize.badge} object-contain select-none`}
           />
@@ -36,7 +36,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
               BonKu
             </span>
             <span className="text-[11px] text-[#fdf3e3] font-mono font-medium flex items-center gap-1 drop-shadow-xs">
-              &gt;_ Abon Ayam Rumahan
+              Abon Ayam Rumahan
             </span>
           </div>
         )}

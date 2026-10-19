@@ -93,7 +93,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuickOrder }) =>
   };
 
   return (
-    <section className="relative w-full h-svh min-h-175 flex flex-col justify-between pt-4 md:pt-16 pb-10 overflow-hidden select-none">
+    <section className="relative w-full h-svh min-h-175 flex flex-col justify-between pt-16 sm:pt-20 md:pt-20 pb-10 overflow-hidden select-none">
       <h1 className="sr-only">BonKu — Abon Ayam Rumahan Higienis, Bergizi, Awet di Suhu Ruang</h1>
 
       <div className="absolute inset-0 z-0 pointer-events-auto">

@@ -18,7 +18,7 @@ export const ProductPreview: React.FC<ProductPreviewProps> = ({
 
   return (
     <div
-      className={`relative w-full flex flex-col overflow-hidden rounded-[24px] bg-[#fffdf5] border-2 border-[#2a1710] shadow-[6px_6px_0px_#2a1710] group/preview ${className}`}
+      className={`relative w-full flex flex-col overflow-hidden rounded-3xl bg-[#fffdf5] border-2 border-[#2a1710] shadow-[6px_6px_0px_#2a1710] group/preview ${className}`}
     >
       {/* product frame label bar */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#f8e7d2] border-b-2 border-[#2a1710] shrink-0">
@@ -26,7 +26,7 @@ export const ProductPreview: React.FC<ProductPreviewProps> = ({
           <span className="w-3 h-3 rounded-full bg-[#f87171] border border-[#2a1710]" />
           <span className="w-3 h-3 rounded-full bg-[#fde047] border border-[#2a1710]" />
           <span className="w-3 h-3 rounded-full bg-[#4ade80] border border-[#2a1710]" />
-          <div className="ml-2 px-3 py-0.5 rounded-md bg-[#fffdf5] border border-[#2a1710]/50 text-[11px] font-mono font-bold text-[#2a1710] truncate max-w-[160px] sm:max-w-[240px]">
+          <div className="ml-2 px-3 py-0.5 rounded-md bg-[#fffdf5] border border-[#2a1710]/50 text-[11px] font-mono font-bold text-[#2a1710] truncate max-w-40 sm:max-w-60">
             {isRoti ? 'bonku / roti-isi-abon' : 'bonku / abon-ayam-pouch-100g'}
           </div>
         </div>

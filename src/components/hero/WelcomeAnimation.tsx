@@ -46,7 +46,7 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
           initial={{ y: "100%" }}
           animate={{ y: phase === "sweep" ? "0%" : "0%" }}
           transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 bg-gradient-to-t from-[#8a3410] via-[#e2571a] to-[#f07b1f]"
+          className="absolute inset-0 bg-linear-to-t from-[#8a3410] via-[#e2571a] to-[#f07b1f]"
         >
           <div className="absolute -top-24 inset-x-0 h-24">
             <svg
@@ -67,7 +67,7 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
           initial={{ y: "100%" }}
           animate={{ y: phase === "sweep" ? "0%" : "0%" }}
           transition={{ duration: 1.15, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 bg-gradient-to-t from-[#e2571a] via-[#f07b1f] to-[#f6a83c]"
+          className="absolute inset-0 bg-linear-to-t from-[#e2571a] via-[#f07b1f] to-[#f6a83c]"
         >
           <div className="absolute -top-28 inset-x-0 h-28">
             <svg
@@ -94,7 +94,7 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
           initial={{ y: "100%" }}
           animate={{ y: phase === "sweep" ? "0%" : "0%" }}
           transition={{ duration: 1.25, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 bg-gradient-to-b from-[#8a3410] via-[#e2571a] to-[#f07b1f]"
+          className="absolute inset-0 bg-linear-to-b from-[#8a3410] via-[#e2571a] to-[#f07b1f]"
         >
           <div className="absolute -top-32 inset-x-0 h-32">
             <svg
@@ -118,7 +118,7 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
         </motion.div>
 
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent" />
 
           {[...Array(18)].map((_, i) => (
             <motion.div
@@ -165,7 +165,7 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
               className="mb-6"
             >
               <img
-                src="/logo-bonku.png"
+                src="/logo-icon.webp"
                 alt="BonKu"
                 className="w-60 h-60 sm:w-80 sm:h-80 object-contain drop-shadow-[0_16px_44px_rgba(0,0,0,0.5)]"
               />
@@ -183,7 +183,7 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
                     phase === "submerged" || phase === "dive" ? "100%" : "0%",
                 }}
                 transition={{ duration: 1.2, ease: "easeInOut" }}
-                className="h-full bg-gradient-to-r from-[#fdf3e3] to-white rounded-full"
+                className="h-full bg-linear-to-r from-[#fdf3e3] to-white rounded-full"
               />
             </div>
           </motion.div>

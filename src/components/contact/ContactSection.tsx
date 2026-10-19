@@ -309,7 +309,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenAdmin }) =
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: 0.22 }}
               style={{ perspective: "800px" }}
-              className="md:col-span-5 min-h-[220px]"
+              className="md:col-span-5 min-h-55"
             >
               <motion.div
                 style={{ transformStyle: "preserve-3d" }}

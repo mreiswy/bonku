@@ -140,13 +140,13 @@ export const ProductDock: React.FC<ProductDockProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.18 }}
-              className="p-3.5 sm:p-5 rounded-2xl sm:rounded-[24px] bg-[#fffdf5] border-2 border-[#2a1710] shadow-[4px_4px_0px_#2a1710] sm:shadow-[6px_6px_0px_#2a1710] flex flex-col justify-between space-y-2.5 sm:space-y-3"
+              className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-[#fffdf5] border-2 border-[#2a1710] shadow-[4px_4px_0px_#2a1710] sm:shadow-[6px_6px_0px_#2a1710] flex flex-col justify-between space-y-2.5 sm:space-y-3"
             >
               {/* project preview frame */}
               <div className="space-y-2 sm:space-y-2">
                 <ProductPreview
                                   project={activeProject}
-                                  className="h-[210px] min-[400px]:h-[235px] sm:h-auto sm:aspect-[16/9] sm:max-h-[220px] lg:max-h-none w-full"
+                                  className="h-52.5 min-[400px]:h-58.75 sm:h-auto sm:aspect-video sm:max-h-55 lg:max-h-none w-full"
                                 />
 
                 {/* project titles with generous breathing room */}
