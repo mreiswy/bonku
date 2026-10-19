@@ -12,6 +12,7 @@ import {
   RotateCw,
   Heart,
   Camera,
+  Lock,
 } from "lucide-react";
 import { profileData } from "../../data/bonkuData";
 import { ContactSauceCanvas } from "./ContactSauceCanvas";
@@ -40,7 +41,11 @@ const inquiryTopics = [
   },
 ];
 
-export const ContactSection: React.FC = () => {
+interface ContactSectionProps {
+  onOpenAdmin?: () => void;
+}
+
+export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenAdmin }) => {
   const [selectedTopic, setSelectedTopic] = useState(inquiryTopics[0]);
   const [currentTime, setCurrentTime] = useState<string>("");
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
@@ -430,10 +435,16 @@ export const ContactSection: React.FC = () => {
             </span>
           </div>
 
-          <div className="flex items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
-            <span className="text-[#475569] hidden md:inline">
-              Dibuat dengan React, Vite &amp; Tailwind CSS
-            </span>
+          <div className="flex items-center justify-center gap-2 sm:gap-3 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={onOpenAdmin}
+              className="px-3 py-1.5 rounded-xl bg-[#faeee0] hover:bg-[#fde047] text-[#2a1710] border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] transition-all cursor-pointer flex items-center justify-center gap-1.5 font-mono font-bold text-xs"
+              title="Akses Dashboard Pengelola BonKu"
+            >
+              <Lock className="w-3.5 h-3.5 text-[#b2430f]" />
+              <span>Area Admin</span>
+            </button>
             <button
               type="button"
               onClick={scrollToTop}

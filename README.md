@@ -10,6 +10,8 @@ Produk: **Abon Ayam Pouch 100g** dan **Roti Isi Abon**. Pemesanan lewat Google F
 
 - **Hero interaktif kanvas**: simulasi saus bumbu 2D, karakter ayam & cabai terbang yang bisa di-drag dengan dialog jenaka.
 - **Katalog produk**: kartu produk dengan modal detail (komposisi, kemasan, cara penyajian).
+- **Formulir Pemesanan Web (SQLite)**: pesan langsung di web dengan kalkulasi harga otomatis, countdown timer batas waktu PO, dan penutupan otomatis jika waktu habis.
+- **Dashboard Admin & SQLite Lokal**: manajemen pesanan, ubah status pesanan, catat pesanan offline, pengaturan batas waktu & kuota batch PO, serta ekspor laporan ke CSV.
 - **Bauran pemasaran 4P**: Product, Price, Place, Promotion dalam grid interaktif.
 - **Alur pemesanan**: timeline 4 langkah dari pilih produk sampai serah terima.
 - **Kontak & pemesanan**: tombol Google Form, chat WhatsApp, dan kartu flip "pesan rahasia".
@@ -69,6 +71,28 @@ Cek konsistensi data setelah mengedit:
 ```bash
 node --experimental-strip-types src/data/bonkuData.check.ts
 ```
+
+---
+
+## Dashboard Admin & SQLite Lokal
+
+Sistem backend terintegrasi langsung dengan database SQLite lokal (`bonku.db`) melalui Vite middleware tanpa proses server terpisah.
+
+### 1. Pemesanan Langsung di Web
+- Pelanggan dapat memesan lewat tombol **"Pesan di Web"** di Hero banner atau **"Pesan Langsung (Web)"** di modal detail produk.
+- Form menampilkan countdown timer **"Sisa Waktu PO"**.
+- Begitu waktu PO habis (atau ditutup admin), form otomatis terkunci dengan status **"PO Ditutup"** dan tombol diarahkan ke WhatsApp untuk tanya sisa stok.
+
+### 2. Mengakses Dashboard Admin
+1. Gulir ke bagian paling bawah (footer) website.
+2. Klik tombol **"Area Admin"** dengan ikon gembok.
+3. Masukkan 4 digit PIN admin (default pengujian: `1234`).
+4. Fitur Dashboard:
+   - **Ringkasan & Metrik**: Omset penjualan, total pesanan, produk terjual, dan status buka/tutup form PO.
+   - **Daftar Pesanan**: Filter status (Pending, Dikonfirmasi, Siap COD, Selesai, Batal), pencarian nama/WA, ubah status pesanan, dan link chat WA pelanggan.
+   - **Catat Pesanan Offline**: Input pesanan tunai/COD offline langsung ke SQLite.
+   - **Batas Waktu & Batch PO**: Atur tanggal/jam tutup PO (`datetime-local`), kuota pouch & roti, toggle buka/tutup form manual, dan ubah pesan penutup.
+   - **Ekspor CSV**: Tombol unduh seluruh data pesanan ke file `.csv` untuk pembukuan Excel.
 
 ---
 

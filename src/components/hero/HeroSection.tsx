@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { ArrowDown, FileText } from 'lucide-react';
+import { ArrowDown, FileText, ShoppingBag } from 'lucide-react';
 import { BumbuHeroCanvas } from './BumbuHeroCanvas';
 import type { BumbuHeroHandle } from './BumbuHeroCanvas';
 import { WordmarkStage } from './WordmarkStage';
@@ -13,7 +13,11 @@ import { KitchenDecorations } from './KitchenDecorations';
 import { TactileButton } from '../ui/TactileButton';
 import { profileData } from '../../data/bonkuData';
 
-export const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+  onOpenQuickOrder?: () => void;
+}
+
+export const HeroSection: React.FC<HeroSectionProps> = ({ onOpenQuickOrder }) => {
   const heroCanvasRef = useRef<BumbuHeroHandle | null>(null);
   const stageRef = useRef<WordmarkStageHandle | null>(null);
   const ayamRef = useRef<AyamKampungHandle | null>(null);
@@ -134,15 +138,23 @@ export const HeroSection: React.FC = () => {
                         Lihat Produk
                       </TactileButton>
 
+                      <TactileButton
+                        variant="kraft"
+                        onClick={onOpenQuickOrder}
+                        icon={<ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                      >
+                        Pesan di Web
+                      </TactileButton>
+
                       <a
-                                              href={profileData.contact.orderFormUrl || profileData.contact.whatsappLink}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-[#3a1d0c] hover:bg-[#46250f] text-[#f8fafc] border border-[#6b3a18] hover:border-[#ddb98f]/60 font-medium text-xs sm:text-sm transition-all select-none cursor-pointer hover:-translate-y-0.5"
-                                            >
-                                              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#4ade80]" />
-                                              <span>Pesan</span>
-                                            </a>
+                        href={profileData.contact.orderFormUrl || profileData.contact.whatsappLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-[#3a1d0c] hover:bg-[#46250f] text-[#f8fafc] border border-[#6b3a18] hover:border-[#ddb98f]/60 font-medium text-xs sm:text-sm transition-all select-none cursor-pointer hover:-translate-y-0.5"
+                      >
+                        <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#4ade80]" />
+                        <span>Form Eksternal</span>
+                      </a>
                     </div>
         </div>
       </div>

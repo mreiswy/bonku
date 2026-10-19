@@ -80,3 +80,51 @@ export interface ProfileData {
     location: string;
   };
 }
+
+export type OrderStatus = 'pending' | 'confirmed' | 'ready_cod' | 'completed' | 'cancelled';
+export type PaymentStatus = 'unpaid' | 'paid';
+
+export interface OrderItem {
+  productId: string;
+  title: string;
+  quantity: number;
+  price: number;
+  subtotal: number;
+}
+
+export interface Order {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  location_note: string;
+  items: string; // JSON string in DB
+  parsedItems?: OrderItem[];
+  total_price: number;
+  notes: string;
+  status: OrderStatus;
+  payment_status: PaymentStatus;
+  source: 'web' | 'manual' | 'whatsapp';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ActiveBatch {
+  id: number;
+  batch_name: string;
+  start_date: string;
+  end_date: string;
+  quota_pouch: number;
+  quota_roti: number;
+  is_active: number;
+  closed_message: string;
+  created_at: string;
+  is_expired: boolean;
+}
+
+export interface OrderStats {
+  totalRevenue: number;
+  totalOrders: number;
+  totalPouch: number;
+  totalRoti: number;
+  pendingOrders: number;
+}

@@ -11,6 +11,9 @@ node_modules
 dist
 dist-ssr
 *.local
+*.db
+*.db-wal
+*.db-shm
 
 # Local backups and tooling artifacts
 .backup
@@ -34,6 +37,8 @@ dist-ssr
 rules.md
 design.md
 skills-lock.json
+AI_INSTRUCTION.md
+docs/
 
 # Environment and local flakes
 .direnv

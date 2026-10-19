@@ -18,12 +18,14 @@ interface ProductDetailModalProps {
   project: Project | null;
   isOpen: boolean;
   onClose: () => void;
+  onOpenQuickOrder?: (productId: string) => void;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   project,
   isOpen,
-  onClose
+  onClose,
+  onOpenQuickOrder
 }) => {
   // suspend global lenis scroll while dialog is open without modifying body overflow
   useEffect(() => {
@@ -194,6 +196,21 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* dialog action buttons */}
           <div className="pt-6 border-t-2 border-[#2a1710]/20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
                       <div className="flex flex-wrap items-center gap-3">
+                        {/* web order button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (project) {
+                              onClose();
+                              onOpenQuickOrder?.(project.id);
+                            }
+                          }}
+                          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#b2430f] hover:bg-[#993608] text-white text-xs font-mono font-black border-2 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] hover:translate-x-0.5 hover:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+                        >
+                          <ShoppingBag className="w-4 h-4" />
+                          <span>Pesan Langsung (Web)</span>
+                        </button>
+
                         {/* whatsapp order button */}
                         {project.orderUrl && (
                           <a
