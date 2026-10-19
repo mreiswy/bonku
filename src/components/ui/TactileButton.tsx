@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import type { HTMLMotionProps } from 'framer-motion';
 
 interface TactileButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
-  variant?: 'primary' | 'secondary' | 'sand' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'kraft' | 'ghost';
   children: React.ReactNode;
   icon?: React.ReactNode;
 }
@@ -18,10 +18,10 @@ export const TactileButton: React.FC<TactileButtonProps> = ({
   const baseStyles = 'inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-colors select-none cursor-pointer';
   
   const variantStyles = {
-    primary: 'bg-[#0284c7] hover:bg-[#0369a1] text-white border border-[#38bdf8] shadow-md shadow-[#0284c7]/20',
-    secondary: 'bg-[#0d2844] hover:bg-[#123559] text-[#f8fafc] border border-[#224c75] hover:border-[#dfcca8]/60',
-    sand: 'bg-[#dfcca8] hover:bg-[#ebdcc0] text-[#071b2f] border border-[#c4ad82] font-semibold',
-    ghost: 'bg-transparent hover:bg-[#0d2844] text-[#cbd5e1] hover:text-[#f8fafc] border border-transparent hover:border-[#224c75]'
+    primary: 'bg-[#e2571a] hover:bg-[#b2430f] text-white border border-[#f6a83c] shadow-md shadow-[#e2571a]/20',
+    secondary: 'bg-[#3a1d0c] hover:bg-[#46250f] text-[#f8fafc] border border-[#6b3a18] hover:border-[#ddb98f]/60',
+    kraft: 'bg-[#ddb98f] hover:bg-[#ebdcc0] text-[#241007] border border-[#b9975f] font-semibold',
+    ghost: 'bg-transparent hover:bg-[#3a1d0c] text-[#cbd5e1] hover:text-[#f8fafc] border border-transparent hover:border-[#6b3a18]'
   };
 
   return (

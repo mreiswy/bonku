@@ -1,25 +1,26 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { BrandLogo } from '../common/BrandLogo';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface WelcomeAnimationProps {
   onComplete: () => void;
 }
 
 export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
-  const [phase, setPhase] = useState<'sweep' | 'submerged' | 'dive' | 'done'>('sweep');
+  const [phase, setPhase] = useState<"sweep" | "submerged" | "dive" | "done">(
+    "sweep",
+  );
 
   useEffect(() => {
     const t1 = setTimeout(() => {
-      setPhase('submerged');
+      setPhase("submerged");
     }, 1100);
 
     const t2 = setTimeout(() => {
-      setPhase('dive');
+      setPhase("dive");
     }, 2200);
 
     const t3 = setTimeout(() => {
-      setPhase('done');
+      setPhase("done");
       onComplete();
     }, 2850);
 
@@ -30,22 +31,22 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
     };
   }, [onComplete]);
 
-  if (phase === 'done') return null;
+  if (phase === "done") return null;
 
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 1 }}
-        animate={{ opacity: phase === 'dive' ? 0 : 1 }}
+        animate={{ opacity: phase === "dive" ? 0 : 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.65, ease: 'easeInOut' }}
-        className="fixed inset-0 z-50 overflow-hidden pointer-events-auto select-none bg-[#071b2f]"
+        transition={{ duration: 0.65, ease: "easeInOut" }}
+        className="fixed inset-0 z-50 overflow-hidden pointer-events-auto select-none bg-[#241007]"
       >
         <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: phase === 'sweep' ? '0%' : '0%' }}
+          initial={{ y: "100%" }}
+          animate={{ y: phase === "sweep" ? "0%" : "0%" }}
           transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 bg-gradient-to-t from-[#02587a] via-[#0284c7] to-[#0ea5e9]"
+          className="absolute inset-0 bg-gradient-to-t from-[#8a3410] via-[#e2571a] to-[#f07b1f]"
         >
           <div className="absolute -top-24 inset-x-0 h-24">
             <svg
@@ -56,17 +57,17 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
             >
               <path
                 d="M0 60 C320 120, 640 0, 960 60 C1200 100, 1360 40, 1440 60 L1440 120 L0 120 Z"
-                fill="#0ea5e9"
+                fill="#f07b1f"
               />
             </svg>
           </div>
         </motion.div>
 
         <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: phase === 'sweep' ? '0%' : '0%' }}
+          initial={{ y: "100%" }}
+          animate={{ y: phase === "sweep" ? "0%" : "0%" }}
           transition={{ duration: 1.15, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 bg-gradient-to-t from-[#0284c7] via-[#0ea5e9] to-[#38bdf8]"
+          className="absolute inset-0 bg-gradient-to-t from-[#e2571a] via-[#f07b1f] to-[#f6a83c]"
         >
           <div className="absolute -top-28 inset-x-0 h-28">
             <svg
@@ -77,7 +78,7 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
             >
               <path
                 d="M0 40 C360 0, 720 100, 1080 30 C1260 0, 1380 60, 1440 40 L1440 120 L0 120 Z"
-                fill="#38bdf8"
+                fill="#f6a83c"
               />
               <path
                 d="M0 40 C360 0, 720 100, 1080 30 C1260 0, 1380 60, 1440 40"
@@ -90,10 +91,10 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
         </motion.div>
 
         <motion.div
-          initial={{ y: '100%' }}
-          animate={{ y: phase === 'sweep' ? '0%' : '0%' }}
+          initial={{ y: "100%" }}
+          animate={{ y: phase === "sweep" ? "0%" : "0%" }}
           transition={{ duration: 1.25, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 bg-gradient-to-b from-[#02587a] via-[#0284c7] to-[#0ea5e9]"
+          className="absolute inset-0 bg-gradient-to-b from-[#8a3410] via-[#e2571a] to-[#f07b1f]"
         >
           <div className="absolute -top-32 inset-x-0 h-32">
             <svg
@@ -104,7 +105,7 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
             >
               <path
                 d="M0 50 C280 110, 560 10, 840 70 C1120 120, 1320 20, 1440 50 L1440 140 L0 140 Z"
-                fill="#02587a"
+                fill="#8a3410"
               />
               <path
                 d="M0 50 C280 110, 560 10, 840 70 C1120 120, 1320 20, 1440 50"
@@ -123,20 +124,20 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
             <motion.div
               key={i}
               initial={{
-                y: '100vh',
+                y: "100vh",
                 x: `${(i * 5.8) % 100}vw`,
                 opacity: 0.3,
-                scale: 0.6 + (i % 5) * 0.25
+                scale: 0.6 + (i % 5) * 0.25,
               }}
               animate={{
-                y: '-20vh',
-                opacity: [0.2, 0.85, 0]
+                y: "-20vh",
+                opacity: [0.2, 0.85, 0],
               }}
               transition={{
                 duration: 1.8 + (i % 4) * 0.4,
-                delay: 0.4 + (i * 0.08),
-                ease: 'easeOut',
-                repeat: Infinity
+                delay: 0.4 + i * 0.08,
+                ease: "easeOut",
+                repeat: Infinity,
               }}
               className="absolute w-5 h-5 rounded-full bg-white/40 border border-white/80 shadow-[0_0_8px_rgba(255,255,255,0.8)] backdrop-blur-xs"
             />
@@ -147,34 +148,42 @@ export const WelcomeAnimation = ({ onComplete }: WelcomeAnimationProps) => {
           <motion.div
             initial={{ opacity: 0, scale: 0.85, y: 20 }}
             animate={{
-              opacity: phase === 'submerged' ? 1 : phase === 'dive' ? 0 : 0,
-              scale: phase === 'submerged' ? 1 : phase === 'dive' ? 1.15 : 0.85,
-              y: phase === 'submerged' ? 0 : phase === 'dive' ? -30 : 20
+              opacity: phase === "submerged" ? 1 : phase === "dive" ? 0 : 0,
+              scale: phase === "submerged" ? 1 : phase === "dive" ? 1.15 : 0.85,
+              y: phase === "submerged" ? 0 : phase === "dive" ? -30 : 20,
             }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="flex flex-col items-center"
           >
             <motion.div
               animate={{ y: [0, -8, 0] }}
-              transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
+              transition={{
+                repeat: Infinity,
+                duration: 2.4,
+                ease: "easeInOut",
+              }}
               className="mb-6"
             >
-              <BrandLogo size="xl" />
+              <img
+                src="/logo-bonku.png"
+                alt="BonKu"
+                className="w-60 h-60 sm:w-80 sm:h-80 object-contain drop-shadow-[0_16px_44px_rgba(0,0,0,0.5)]"
+              />
             </motion.div>
 
-            <h1 className="text-4xl sm:text-6xl font-black text-white tracking-widest uppercase drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)]">
-              REYHAND ASTRA
-            </h1>
-            <p className="mt-3 text-sm sm:text-base font-semibold tracking-widest text-[#fff9d4] uppercase drop-shadow-md">
-              Diving into Portfolio
+            <p className="mt-3 text-sm sm:text-base font-semibold tracking-widest text-[#fdf3e3] uppercase drop-shadow-md">
+              Abon Ayam Rumahan — Higienis &amp; Bergizi
             </p>
 
             <div className="mt-6 w-48 h-1 rounded-full bg-white/20 overflow-hidden">
               <motion.div
-                initial={{ width: '0%' }}
-                animate={{ width: phase === 'submerged' || phase === 'dive' ? '100%' : '0%' }}
-                transition={{ duration: 1.2, ease: 'easeInOut' }}
-                className="h-full bg-gradient-to-r from-[#fff9d4] to-white rounded-full"
+                initial={{ width: "0%" }}
+                animate={{
+                  width:
+                    phase === "submerged" || phase === "dive" ? "100%" : "0%",
+                }}
+                transition={{ duration: 1.2, ease: "easeInOut" }}
+                className="h-full bg-gradient-to-r from-[#fdf3e3] to-white rounded-full"
               />
             </div>
           </motion.div>

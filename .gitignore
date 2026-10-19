@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Local backups and tooling artifacts
+.backup
+.taste-skill
+.env*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

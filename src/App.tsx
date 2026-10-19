@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import type { Project } from './types/portfolio';
+import { MotionConfig } from 'framer-motion';
+import type { Project } from './types/bonku';
 import { useLenisSmoothScroll } from './hooks/useLenisSmoothScroll';
 import { NavigationBar } from './components/navigation/NavigationBar';
 import { HeroSection } from './components/hero/HeroSection';
 import { WelcomeAnimation } from './components/hero/WelcomeAnimation';
-import { EditorialProfile } from './components/profile/EditorialProfile';
-import { ProjectShowcase } from './components/projects/ProjectShowcase';
-import { TechGrid } from './components/tech/TechGrid';
-import { GithubActivitySection } from './components/activity/GithubActivitySection';
-import { JourneyTimeline } from './components/journey/JourneyTimeline';
+import { AboutProduct } from './components/about/AboutProduct';
+import { ProductShowcase } from './components/products/ProductShowcase';
+import { MarketingGrid } from './components/marketing/MarketingGrid';
+import { OrderTimeline } from './components/order/OrderTimeline';
 import { ContactSection } from './components/contact/ContactSection';
-import { ProjectCaseStudyModal } from './components/projects/ProjectCaseStudyModal';
+import { ProductDetailModal } from './components/products/ProductDetailModal';
 
 export function App() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -19,29 +19,34 @@ export function App() {
   useLenisSmoothScroll();
 
   return (
-    <div className="min-h-screen bg-[#fff9d4] text-[#0f172a] selection:bg-[#0284c7] selection:text-white">
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-svh bg-[#fdf3e3] text-[#2a1710] selection:bg-[#e2571a] selection:text-white">
       {showWelcome && (
         <WelcomeAnimation onComplete={() => setShowWelcome(false)} />
       )}
 
+      <a href="#main" className="skip-link">
+        Lewati ke konten utama
+      </a>
+
       <NavigationBar />
 
-      <main className="relative">
+      <main id="main" className="relative">
         <HeroSection />
-        <EditorialProfile />
-        <ProjectShowcase onOpenProject={setActiveModalProject} />
-        <TechGrid onOpenProject={setActiveModalProject} />
-        <GithubActivitySection />
-        <JourneyTimeline />
+        <AboutProduct />
+        <ProductShowcase onOpenProject={setActiveModalProject} />
+        <MarketingGrid />
+                <OrderTimeline />
         <ContactSection />
       </main>
 
-      <ProjectCaseStudyModal
+      <ProductDetailModal
         project={activeModalProject}
         isOpen={!!activeModalProject}
         onClose={() => setActiveModalProject(null)}
       />
-    </div>
+      </div>
+    </MotionConfig>
   );
 }
 

@@ -43,16 +43,27 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #071b2f;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #224c75;
+  background: transparent;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0284c7;
+  background: #e2571a;
+}
+
+:hover::-webkit-scrollbar-thumb { background: #e2571a; }
+:hover::-webkit-scrollbar-thumb:hover { background: #b2430f; }
+
+* {
+  scrollbar-color: transparent transparent;
+}
+
+*:hover {
+  scrollbar-color: #e2571a transparent;
 }
 
 /* hide scrollbar utility */
@@ -67,52 +78,53 @@
   scrollbar-width: none !important;
 }
 
-@keyframes waveWaterRoll {
-  0% {
-    background-position: 0px 0px, 0% 50%;
-  }
-
-  100% {
-    background-position: 120px 0px, 0% 50%;
-  }
-}
-
-@keyframes waveWaterRiseAndRoll {
-  0% {
-    background-position: 0px 35px, 0% 0%;
-  }
-
-  28% {
-    background-position: 25px 0px, 0% 50%;
-  }
-
-  100% {
-    background-position: 145px 0px, 0% 50%;
-  }
-}
-
 .wave-text-half {
   position: relative;
   display: inline-block;
   color: #f8fafc;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40' preserveAspectRatio='none'%3E%3Cpath d='M0,17 C30,10 60,24 90,17 C105,13 115,21 120,17 L120,40 L0,40 Z' fill='%2367e8f9'/%3E%3Cpath d='M0,20 C30,14 60,26 90,20 C105,17 115,23 120,20 L120,40 L0,40 Z' fill='%230284c7'/%3E%3C/svg%3E"),
-    linear-gradient(180deg, #ffffff 0%, #ffffff 49%, #0284c7 50%, #02587a 100%);
-  background-size: 120px 100%, 100% 200%;
-  background-position: 0px 35px, 0% 0%;
-  background-repeat: repeat-x, no-repeat;
-  transition: font-weight 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 .wave-text-half:hover {
-  animation: waveWaterRiseAndRoll 2.4s ease-out infinite;
+  color: #fde047;
 }
 
 .wave-text-half.is-active {
-  background-position: 0px 0px, 0% 50%;
-  animation: waveWaterRoll 2s linear infinite;
+  color: #fde047;
   font-weight: 700;
+}
+
+/* focus + readability helpers */
+:focus-visible {
+  outline: 3px solid #e2571a;
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-200%);
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.6rem;
+  background: #2a1710;
+  color: #fdf3e3;
+  font-weight: 700;
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }

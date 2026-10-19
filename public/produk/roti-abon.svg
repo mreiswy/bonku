@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <rect width="800" height="600" fill="#faeed1"/>
+  <g stroke="#0f172a" stroke-width="3">
+    <rect x="60" y="60" width="680" height="480" fill="#fffdf5" rx="28"/>
+  </g>
+  <path d="M250 300 Q220 200 400 200 Q580 200 550 300 Q540 360 400 360 Q260 360 250 300 Z" fill="#e8b06a" stroke="#0f172a" stroke-width="3"/>
+  <path d="M270 300 Q400 275 530 300 Q520 340 400 340 Q280 340 270 300 Z" fill="#b45309" stroke="#0f172a" stroke-width="3"/>
+  <text x="400" y="440" text-anchor="middle" font-family="Arial, sans-serif" font-size="46" font-weight="bold" fill="#0f172a">ROTI ISI ABON</text>
+  <text x="400" y="486" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#8c6239">Siap santap — BonKu</text>
+</svg>
