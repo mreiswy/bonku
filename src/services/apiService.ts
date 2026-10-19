@@ -118,6 +118,7 @@ export async function updateActiveBatch(data: {
   quota_pouch?: number;
   quota_roti?: number;
   is_active?: number;
+  order_mode?: 'po' | 'reguler';
   closed_message?: string;
 }): Promise<{ success: boolean; batch?: ActiveBatch; error?: string }> {
   try {

@@ -80,7 +80,7 @@ export const OrderPage: React.FC<OrderPageProps> = ({ onNavigateHome, initialPro
 
   // Countdown timer
   useEffect(() => {
-    if (!batch || !batch.end_date || !batch.is_active) {
+    if (!batch || !batch.end_date || !batch.is_active || batch.order_mode === 'reguler') {
       return;
     }
 
@@ -204,7 +204,9 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
                 Pemesanan BonKu
               </h1>
               <p className="text-[11px] sm:text-xs text-[#5c3e32]">
-                {batch?.batch_name || 'Open Pre-Order'}
+                {batch?.order_mode === 'reguler'
+                  ? (batch?.batch_name || 'Pesanan Harian (Ready Stock)')
+                  : (batch?.batch_name || 'Open Pre-Order')}
               </p>
             </div>
           </div>
@@ -235,14 +237,20 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
 
             <div className="space-y-2">
               <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-black bg-[#fee2e2] text-[#dc2626] border border-[#dc2626]">
-                PO DITUTUP SEMENTARA
+                {batch?.order_mode === 'po' && batch?.is_expired
+                  ? 'PO DITUTUP (WAKTU HABIS)'
+                  : 'FORM DITUTUP SEMENTARA'}
               </span>
               <h2 className="text-xl sm:text-2xl font-black text-[#2a1710]">
-                Pre-Order Batch Ini Telah Ditutup
+                {batch?.order_mode === 'po' && batch?.is_expired
+                  ? 'Pre-Order Batch Ini Telah Ditutup'
+                  : 'Form Pemesanan Sedang Ditutup'}
               </h2>
               <p className="text-xs sm:text-sm text-[#475569] leading-relaxed max-w-md mx-auto">
                 {batch?.closed_message ||
-                  'Batas waktu pemesanan untuk batch saat ini telah berakhir. Hubungi kami via WhatsApp untuk menanyakan ketersediaan sisa stok atau info batch selanjutnya.'}
+                  (batch?.order_mode === 'po' && batch?.is_expired
+                    ? 'Batas waktu pemesanan untuk batch saat ini telah berakhir. Hubungi kami via WhatsApp untuk menanyakan ketersediaan sisa stok atau info batch selanjutnya.'
+                    : 'Pemesanan ditutup sementara oleh pengelola BonKu. Hubungi WhatsApp kami untuk menanyakan stok atau pemesanan langsung.')}
               </p>
             </div>
 
@@ -324,8 +332,18 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
         ) : (
           /* FORM PEMESANAN AKTIF */
           <div className="bg-[#fffdf5] border-3 border-[#2a1710] rounded-3xl shadow-[6px_6px_0px_#2a1710] p-5 sm:p-7 space-y-6">
-            {/* Countdown Banner */}
-            {timeLeft && (
+            {/* Mode Banner: Day Biasa (Ready Stock) vs Countdown PO */}
+            {batch?.order_mode === 'reguler' ? (
+              <div className="p-3.5 rounded-2xl bg-[#dcfce7] border-2 border-[#16a34a] shadow-[2px_2px_0px_#2a1710] flex items-center justify-between text-xs font-mono font-bold text-[#15803d]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a] animate-pulse" />
+                  <span>Pesanan Harian (Ready Stock) Buka</span>
+                </div>
+                <span className="text-[10px] bg-white px-2 py-0.5 rounded border border-[#16a34a] text-[#15803d]">
+                  Siap Kirim / COD
+                </span>
+              </div>
+            ) : timeLeft ? (
               <div className="p-3.5 rounded-2xl bg-[#fef3c7] border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] flex items-center justify-between text-xs font-mono font-bold text-[#92400e]">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-[#b2430f] animate-pulse" />
@@ -338,7 +356,7 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
                   <span className="bg-white px-2 py-0.5 rounded border border-[#2a1710]">{timeLeft.seconds}d</span>
                 </div>
               </div>
-            )}
+            ) : null}
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Step 1: Produk */}

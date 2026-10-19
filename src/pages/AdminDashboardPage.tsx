@@ -16,6 +16,9 @@ import {
   Lock,
   AlertCircle,
   Delete,
+  Sparkles,
+  Power,
+  SlidersHorizontal,
 } from 'lucide-react';
 import {
   fetchOrders,
@@ -52,12 +55,14 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
   const [stats, setStats] = useState<OrderStats | null>(null);
   const [batch, setBatch] = useState<ActiveBatch | null>(null);
   const [loading, setLoading] = useState(false);
+  const [quickUpdating, setQuickUpdating] = useState(false);
 
   // Filter & Search
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Batch Form State
+  // Batch & Form Settings State
+  const [orderMode, setOrderMode] = useState<'po' | 'reguler'>('po');
   const [batchName, setBatchName] = useState('');
   const [endDate, setEndDate] = useState('');
   const [quotaPouch, setQuotaPouch] = useState(50);
@@ -132,6 +137,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
     setBatch(fetchedBatch);
 
     if (fetchedBatch) {
+      setOrderMode(fetchedBatch.order_mode || 'po');
       setBatchName(fetchedBatch.batch_name);
       try {
         const d = new Date(fetchedBatch.end_date);
@@ -164,6 +170,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
       setBatch(fetchedBatch);
 
       if (fetchedBatch) {
+        setOrderMode(fetchedBatch.order_mode || 'po');
         setBatchName(fetchedBatch.batch_name);
         try {
           const d = new Date(fetchedBatch.end_date);
@@ -184,6 +191,32 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
       isSubscribed = false;
     };
   }, [isAuthenticated, statusFilter, searchQuery]);
+
+  // Quick action: ON/OFF form
+  const handleQuickToggleActive = async (targetActive?: number) => {
+    if (quickUpdating) return;
+    const currentActive = batch?.is_active ?? 1;
+    const nextActive = targetActive !== undefined ? targetActive : (currentActive === 1 ? 0 : 1);
+    setQuickUpdating(true);
+    setBatchActive(nextActive);
+    const res = await updateActiveBatch({ is_active: nextActive });
+    setQuickUpdating(false);
+    if (res.success) {
+      loadData();
+    }
+  };
+
+  // Quick action: switch mode PO vs Reguler (Day Biasa)
+  const handleQuickSwitchMode = async (targetMode: 'po' | 'reguler') => {
+    if (quickUpdating) return;
+    setQuickUpdating(true);
+    setOrderMode(targetMode);
+    const res = await updateActiveBatch({ order_mode: targetMode });
+    setQuickUpdating(false);
+    if (res.success) {
+      loadData();
+    }
+  };
 
   const handleStatusChange = async (orderId: string, nextStatus: OrderStatus) => {
     const res = await updateOrderStatus(orderId, { status: nextStatus });
@@ -220,15 +253,16 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
       quota_pouch: quotaPouch,
       quota_roti: quotaRoti,
       is_active: batchActive,
+      order_mode: orderMode,
       closed_message: closedMessage,
     });
 
     setSavingBatch(false);
     if (res.success) {
-      setBatchMessage('Pengaturan batch PO berhasil diperbarui!');
+      setBatchMessage('Pengaturan form dan mode pemesanan berhasil diperbarui!');
       loadData();
     } else {
-      setBatchMessage(res.error || 'Gagal menyimpan batch.');
+      setBatchMessage(res.error || 'Gagal menyimpan pengaturan.');
     }
   };
 
@@ -502,7 +536,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
             { id: 'overview', label: 'Ringkasan & Metrik', icon: LayoutDashboard },
             { id: 'orders', label: `Daftar Pesanan (${orders.length})`, icon: ShoppingBag },
             { id: 'add_order', label: '+ Catat Pesanan Offline', icon: PlusCircle },
-            { id: 'batch_settings', label: 'Batas Waktu & Batch PO', icon: Clock },
+            { id: 'batch_settings', label: 'Pengaturan Form & Mode', icon: SlidersHorizontal },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -533,37 +567,129 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
               animate={{ opacity: 1, y: 0 }}
               className="space-y-6"
             >
-              {/* Status Banner */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-[#fdf3e3] border-2 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-black text-xs text-[#2a1710] uppercase">
-                      Batch Aktif:
-                    </span>
-                    <span className="font-bold text-sm sm:text-base text-[#b2430f]">
-                      {batch?.batch_name || '-'}
-                    </span>
+              {/* Form Control & Status Banner */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-[#fdf3e3] border-2 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] space-y-4">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  {/* Left: Mode & Batch Info */}
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono font-black text-xs text-[#2a1710] uppercase">
+                        Mode Aktif:
+                      </span>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-mono font-black border-2 border-[#2a1710] flex items-center gap-1 ${
+                          batch?.order_mode === 'reguler'
+                            ? 'bg-[#dcfce7] text-[#15803d]'
+                            : 'bg-[#fef3c7] text-[#92400e]'
+                        }`}
+                      >
+                        {batch?.order_mode === 'reguler' ? (
+                          <>
+                            <Sparkles className="w-3 h-3 text-[#16a34a]" />
+                            Day Biasa (Ready Stock)
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-3 h-3 text-[#b2430f]" />
+                            PO Batch (Berjadwal)
+                          </>
+                        )}
+                      </span>
+                      <span className="font-bold text-sm sm:text-base text-[#b2430f]">
+                        {batch?.batch_name || '-'}
+                      </span>
+                    </div>
+
+                    <div className="text-xs text-[#5c3e32] flex flex-wrap items-center gap-2">
+                      {batch?.order_mode === 'reguler' ? (
+                        <span className="text-[#15803d] font-medium">
+                          • Form pesanan harian tanpa countdown batas waktu habis. Terbuka selama status form ON.
+                        </span>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-[#b2430f]" />
+                          <span>
+                            Batas Waktu PO:{' '}
+                            {batch?.end_date ? new Date(batch.end_date).toLocaleString('id-ID') : '-'}
+                          </span>
+                          {batch?.is_expired && (
+                            <span className="px-1.5 py-0.5 rounded bg-[#fee2e2] text-[#b91c1c] font-mono font-bold text-[10px]">
+                              WAKTU HABIS
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-xs text-[#5c3e32] flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-[#b2430f]" />
-                    <span>
-                      Batas Waktu PO:{' '}
-                      {batch?.end_date ? new Date(batch.end_date).toLocaleString('id-ID') : '-'}
-                    </span>
+
+                  {/* Right: Status Form Pill */}
+                  <div className="flex items-center gap-2 self-start lg:self-center">
+                    {batch?.is_active === 1 && (!batch?.is_expired || batch?.order_mode === 'reguler') ? (
+                      <span className="px-3.5 py-1.5 rounded-full text-xs font-mono font-black bg-[#dcfce7] text-[#15803d] border-2 border-[#15803d] flex items-center gap-1.5 shadow-[1px_1px_0px_#2a1710]">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#15803d] animate-ping" />
+                        FORM: ON (BUKA)
+                      </span>
+                    ) : (
+                      <span className="px-3.5 py-1.5 rounded-full text-xs font-mono font-black bg-[#fee2e2] text-[#b91c1c] border-2 border-[#b91c1c] flex items-center gap-1.5 shadow-[1px_1px_0px_#2a1710]">
+                        <span className="w-2 h-2 rounded-full bg-[#b91c1c]" />
+                        {batch?.is_active === 0 ? 'FORM: OFF (DITUTUP MANUAL)' : 'FORM: PO EXPIRED (HABIS)'}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <div>
-                  {batch?.is_active && !batch?.is_expired ? (
-                    <span className="px-3.5 py-1.5 rounded-full text-xs font-mono font-black bg-[#dcfce7] text-[#15803d] border-2 border-[#15803d] flex items-center gap-1.5 shadow-[1px_1px_0px_#2a1710]">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#15803d] animate-ping" />
-                      FORM PO DIBUKA
-                    </span>
-                  ) : (
-                    <span className="px-3.5 py-1.5 rounded-full text-xs font-mono font-black bg-[#fee2e2] text-[#b91c1c] border-2 border-[#b91c1c] shadow-[1px_1px_0px_#2a1710]">
-                      FORM PO DITUTUP
-                    </span>
-                  )}
+                {/* Quick Toggles Row */}
+                <div className="pt-3 border-t-2 border-[#eadac4] flex flex-wrap items-center justify-between gap-3">
+                  {/* ON/OFF Quick Button */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-[#5c3e32]">Saklar Cepat Form:</span>
+                    <button
+                      type="button"
+                      disabled={quickUpdating}
+                      onClick={() => handleQuickToggleActive()}
+                      className={`px-3 py-1.5 rounded-xl font-mono text-xs font-black border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] flex items-center gap-1.5 cursor-pointer transition-transform active:translate-y-0.5 ${
+                        batch?.is_active === 1
+                          ? 'bg-[#fee2e2] hover:bg-[#fca5a5] text-[#b91c1c]'
+                          : 'bg-[#dcfce7] hover:bg-[#bbf7d0] text-[#15803d]'
+                      }`}
+                    >
+                      <Power className="w-3.5 h-3.5" />
+                      <span>{batch?.is_active === 1 ? 'Matikan Form (OFF)' : 'Nyalakan Form (ON)'}</span>
+                    </button>
+                  </div>
+
+                  {/* Mode Switcher Buttons */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-mono font-bold text-[#5c3e32]">Pindah Mode:</span>
+                    <div className="inline-flex rounded-xl p-1 bg-white border-2 border-[#2a1710] shadow-[1px_1px_0px_#2a1710]">
+                      <button
+                        type="button"
+                        disabled={quickUpdating}
+                        onClick={() => handleQuickSwitchMode('po')}
+                        className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          batch?.order_mode === 'po'
+                            ? 'bg-[#b2430f] text-white shadow-sm'
+                            : 'text-[#2a1710] hover:bg-[#fdf3e3]'
+                        }`}
+                      >
+                        <Clock className="w-3 h-3" />
+                        <span>PO Batch</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={quickUpdating}
+                        onClick={() => handleQuickSwitchMode('reguler')}
+                        className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          batch?.order_mode === 'reguler'
+                            ? 'bg-[#15803d] text-white shadow-sm'
+                            : 'text-[#2a1710] hover:bg-[#fdf3e3]'
+                        }`}
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        <span>Day Biasa</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -964,19 +1090,20 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
             </motion.div>
           )}
 
-          {/* TAB 4: BATAS WAKTU & BATCH PO */}
+          {/* TAB 4: PENGATURAN FORM & MODE */}
           {activeTab === 'batch_settings' && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="max-w-xl mx-auto bg-white p-6 rounded-2xl border-2 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] space-y-4"
+              className="max-w-xl mx-auto bg-white p-6 rounded-2xl border-2 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] space-y-5"
             >
               <div className="space-y-1">
-                <h3 className="font-mono font-black text-sm sm:text-base text-[#2a1710]">
-                  Pengaturan Batas Waktu &amp; Kuota Pre-Order
+                <h3 className="font-mono font-black text-sm sm:text-base text-[#2a1710] flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4 text-[#b2430f]" />
+                  <span>Pengaturan Form Pemesanan &amp; Mode</span>
                 </h3>
                 <p className="text-xs text-[#5c3e32]">
-                  Tentukan kapan form otomatis ditutup dan batas kuota produksi batch ini.
+                  Atur saklar ON/OFF form pelanggan serta tentukan mode antara PO Batch (berjadwal) atau Day Biasa (ready stock harian).
                 </p>
               </div>
 
@@ -987,89 +1114,177 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                 </div>
               )}
 
-              <form onSubmit={handleSaveBatch} className="space-y-4">
-                <div>
-                  <label className="text-xs font-bold text-[#2a1710]">Nama Batch PO</label>
-                  <input
-                    type="text"
-                    required
-                    value={batchName}
-                    onChange={(e) => setBatchName(e.target.value)}
-                    placeholder="Contoh: PO Batch 1 — Spesial Pekan Ini"
-                    className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs"
-                  />
+              <form onSubmit={handleSaveBatch} className="space-y-5">
+                {/* 1. Saklar ON / OFF Utama */}
+                <div className="p-4 rounded-xl bg-[#fdf3e3] border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-mono font-black text-[#2a1710] uppercase flex items-center gap-1.5">
+                        <Power className="w-3.5 h-3.5 text-[#b2430f]" />
+                        <span>Status Form Pemesanan</span>
+                      </div>
+                      <div className="text-[11px] text-[#5c3e32]">
+                        {batchActive === 1
+                          ? 'Form AKTIF (ON) — Pelanggan bisa memesan di website.'
+                          : 'Form NONAKTIF (OFF) — Form ditutup manual, diarahkan ke WA.'}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBatchActive((prev) => (prev === 1 ? 0 : 1))}
+                      className={`px-3 py-1.5 rounded-xl font-mono text-xs font-black border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] cursor-pointer transition-transform active:translate-y-0.5 ${
+                        batchActive === 1
+                          ? 'bg-[#dcfce7] text-[#15803d]'
+                          : 'bg-[#fee2e2] text-[#b91c1c]'
+                      }`}
+                    >
+                      {batchActive === 1 ? 'ON (Buka)' : 'OFF (Tutup)'}
+                    </button>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-xs font-bold text-[#2a1710] flex items-center justify-between">
-                    <span>Batas Waktu Penutupan Form (Waktu Habis) *</span>
-                    <span className="text-[10px] text-[#64748b]">Waktu Indonesia (WIB)</span>
+                {/* 2. Pilihan Mode Pemesanan */}
+                <div className="space-y-2">
+                  <label className="text-xs font-mono font-black text-[#2a1710] uppercase">
+                    Pilih Mode Pemesanan
                   </label>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs font-mono font-bold"
-                  />
-                  <p className="text-[10px] text-[#64748b] mt-1">
-                    * Begitu tanggal &amp; jam ini tercapai, form pemesanan pelanggan otomatis terkunci dan menampilkan status PO Ditutup.
-                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setOrderMode('po')}
+                      className={`p-3.5 rounded-xl border-2 border-[#2a1710] text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+                        orderMode === 'po'
+                          ? 'bg-[#fff7ed] shadow-[3px_3px_0px_#2a1710] ring-2 ring-[#b2430f]'
+                          : 'bg-white hover:bg-[#faeee0]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-mono font-bold text-xs text-[#b2430f]">
+                          <Clock className="w-4 h-4" />
+                          <span>Mode PO Batch</span>
+                        </div>
+                        {orderMode === 'po' && (
+                          <span className="w-2 h-2 rounded-full bg-[#b2430f]" />
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[#5c3e32] leading-snug">
+                        Pre-Order berjadwal dengan countdown timer batas waktu habis &amp; kuota batch.
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setOrderMode('reguler')}
+                      className={`p-3.5 rounded-xl border-2 border-[#2a1710] text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+                        orderMode === 'reguler'
+                          ? 'bg-[#f0fdf4] shadow-[3px_3px_0px_#2a1710] ring-2 ring-[#15803d]'
+                          : 'bg-white hover:bg-[#faeee0]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-mono font-bold text-xs text-[#15803d]">
+                          <Sparkles className="w-4 h-4 text-[#16a34a]" />
+                          <span>Mode Day Biasa</span>
+                        </div>
+                        {orderMode === 'reguler' && (
+                          <span className="w-2 h-2 rounded-full bg-[#15803d]" />
+                        )}
+                      </div>
+                      <p className="text-[11px] text-[#5c3e32] leading-snug">
+                        Ready stock harian tanpa countdown batas waktu habis, siap pesan kapan saja.
+                      </p>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                {/* 3. Detail Pengaturan Sesuai Mode */}
+                <div className="space-y-4 pt-1">
                   <div>
-                    <label className="text-xs font-bold text-[#2a1710]">Kuota Pouch Abon</label>
+                    <label className="text-xs font-bold text-[#2a1710]">
+                      {orderMode === 'po' ? 'Nama Batch PO' : 'Label Form / Nama Katalog'}
+                    </label>
                     <input
-                      type="number"
-                      min="1"
-                      value={quotaPouch}
-                      onChange={(e) => setQuotaPouch(parseInt(e.target.value) || 0)}
-                      className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs font-mono font-bold"
+                      type="text"
+                      required
+                      value={batchName}
+                      onChange={(e) => setBatchName(e.target.value)}
+                      placeholder={
+                        orderMode === 'po'
+                          ? 'Contoh: PO Batch 1 — Spesial Pekan Ini'
+                          : 'Contoh: Pesanan Harian Ready Stock'
+                      }
+                      className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs"
                     />
                   </div>
-                  <div>
-                    <label className="text-xs font-bold text-[#2a1710]">Kuota Roti Abon</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={quotaRoti}
-                      onChange={(e) => setQuotaRoti(parseInt(e.target.value) || 0)}
-                      className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs font-mono font-bold"
-                    />
-                  </div>
-                </div>
 
-                {/* Override Toggle */}
-                <div className="p-3.5 rounded-xl bg-[#faeee0] border-2 border-[#2a1710] flex items-center justify-between">
-                  <div>
-                    <div className="text-xs font-bold text-[#2a1710]">Status Buka/Tutup Form</div>
-                    <div className="text-[10px] text-[#5c3e32]">
-                      Override manual untuk menutup form sebelum waktu habis
+                  {orderMode === 'po' ? (
+                    <div>
+                      <label className="text-xs font-bold text-[#2a1710] flex items-center justify-between">
+                        <span>Batas Waktu Penutupan Form (Waktu Habis) *</span>
+                        <span className="text-[10px] text-[#64748b]">Waktu Indonesia (WIB)</span>
+                      </label>
+                      <input
+                        type="datetime-local"
+                        required
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs font-mono font-bold"
+                      />
+                      <p className="text-[10px] text-[#64748b] mt-1">
+                        * Begitu tanggal &amp; jam ini tercapai, form otomatis tertutup bagi pelanggan dengan status PO Selesai.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-[#f0fdf4] border border-[#16a34a] text-xs text-[#15803d] flex items-start gap-2">
+                      <Sparkles className="w-4 h-4 mt-0.5 shrink-0 text-[#16a34a]" />
+                      <div>
+                        <span className="font-bold">Mode Day Biasa Aktif:</span>
+                        <p className="text-[11px] text-[#166534] mt-0.5">
+                          Form tidak memakai countdown batas waktu habis dan akan selalu menerima pesanan harian selama status form di atas adalah <strong>ON (Buka)</strong>.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-[#2a1710]">
+                        {orderMode === 'po' ? 'Kuota Pouch Abon' : 'Target / Stok Pouch'}
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={quotaPouch}
+                        onChange={(e) => setQuotaPouch(parseInt(e.target.value) || 0)}
+                        className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs font-mono font-bold"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-[#2a1710]">
+                        {orderMode === 'po' ? 'Kuota Roti Abon' : 'Target / Stok Roti'}
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={quotaRoti}
+                        onChange={(e) => setQuotaRoti(parseInt(e.target.value) || 0)}
+                        className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs font-mono font-bold"
+                      />
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setBatchActive((prev) => (prev === 1 ? 0 : 1))}
-                    className={`px-3 py-1.5 rounded-xl font-mono text-xs font-black border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] cursor-pointer ${
-                      batchActive === 1 ? 'bg-[#dcfce7] text-[#15803d]' : 'bg-[#fee2e2] text-[#b91c1c]'
-                    }`}
-                  >
-                    {batchActive === 1 ? 'Aktif (Buka)' : 'Nonaktif (Tutup)'}
-                  </button>
-                </div>
 
-                <div>
-                  <label className="text-xs font-bold text-[#2a1710]">
-                    Pesan Saat Form Habis / Ditutup
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={closedMessage}
-                    onChange={(e) => setClosedMessage(e.target.value)}
-                    placeholder="Pesan penjelas untuk pelanggan..."
-                    className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs"
-                  />
+                  <div>
+                    <label className="text-xs font-bold text-[#2a1710]">
+                      Pesan Saat Form Ditutup / Habis
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={closedMessage}
+                      onChange={(e) => setClosedMessage(e.target.value)}
+                      placeholder="Pesan penjelas untuk pelanggan saat form ditutup..."
+                      className="w-full mt-1 px-3 py-2 rounded-xl border-2 border-[#2a1710] text-xs"
+                    />
+                  </div>
                 </div>
 
                 <button
@@ -1077,7 +1292,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ onNaviga
                   disabled={savingBatch}
                   className="w-full py-3 rounded-xl bg-[#b2430f] hover:bg-[#993608] text-white font-mono font-black text-xs sm:text-sm border-2 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] cursor-pointer transition-transform active:translate-y-0.5"
                 >
-                  {savingBatch ? 'Menyimpan Pengaturan...' : 'Simpan Pengaturan Batch'}
+                  {savingBatch ? 'Menyimpan Pengaturan...' : 'Simpan Pengaturan Form & Mode'}
                 </button>
               </form>
             </motion.div>

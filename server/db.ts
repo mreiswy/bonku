@@ -39,6 +39,7 @@ export function initDb() {
       quota_pouch INTEGER DEFAULT 50,
       quota_roti INTEGER DEFAULT 30,
       is_active INTEGER DEFAULT 1,
+      order_mode TEXT DEFAULT 'po',
       closed_message TEXT DEFAULT 'Pre-Order batch ini sudah ditutup. Pantau pengumuman batch berikutnya atau hubungi WhatsApp kami untuk menanyakan sisa stok!',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -48,6 +49,13 @@ export function initDb() {
       value TEXT NOT NULL
     );
   `);
+
+  // Migrasi aman: tambahkan kolom order_mode jika belum ada
+  try {
+    db.exec("ALTER TABLE batches ADD COLUMN order_mode TEXT DEFAULT 'po';");
+  } catch {
+    // Abaikan jika kolom sudah ada
+  }
 
   // Default PIN admin = 1234 jika belum ada
   const adminPin = db.prepare('SELECT value FROM settings WHERE key = ?').get('admin_pin') as { value: string } | undefined;
@@ -61,8 +69,8 @@ export function initDb() {
     const now = new Date();
     const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 hari
     db.prepare(`
-      INSERT INTO batches (batch_name, start_date, end_date, quota_pouch, quota_roti, is_active, closed_message)
-      VALUES (?, ?, ?, ?, ?, 1, ?)
+      INSERT INTO batches (batch_name, start_date, end_date, quota_pouch, quota_roti, is_active, order_mode, closed_message)
+      VALUES (?, ?, ?, ?, ?, 1, 'po', ?)
     `).run(
       'PO Batch 1 — Spesial Pekan Ini',
       now.toISOString(),
@@ -82,6 +90,7 @@ export interface BatchRecord {
   quota_pouch: number;
   quota_roti: number;
   is_active: number;
+  order_mode: 'po' | 'reguler';
   closed_message: string;
   created_at: string;
 }
@@ -92,9 +101,11 @@ export function getActiveBatch(): (BatchRecord & { is_expired: boolean }) | null
   if (!row) {
     return null;
   }
-  const isExpired = new Date(row.end_date).getTime() <= Date.now();
+  const mode = (row.order_mode || 'po') as 'po' | 'reguler';
+  const isExpired = mode === 'po' ? new Date(row.end_date).getTime() <= Date.now() : false;
   return {
     ...row,
+    order_mode: mode,
     is_expired: isExpired,
   };
 }

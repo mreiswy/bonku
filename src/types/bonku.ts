@@ -116,6 +116,7 @@ export interface ActiveBatch {
   quota_pouch: number;
   quota_roti: number;
   is_active: number;
+  order_mode: 'po' | 'reguler';
   closed_message: string;
   created_at: string;
   is_expired: boolean;

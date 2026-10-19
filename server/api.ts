@@ -97,20 +97,22 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
         quota_pouch?: number;
         quota_roti?: number;
         is_active?: number;
+        order_mode?: 'po' | 'reguler';
         closed_message?: string;
       }>(req);
 
       const activeBatch = getActiveBatch();
       if (!activeBatch) {
         db.prepare(`
-          INSERT INTO batches (batch_name, start_date, end_date, quota_pouch, quota_roti, is_active, closed_message)
-          VALUES (?, datetime('now'), ?, ?, ?, ?, ?)
+          INSERT INTO batches (batch_name, start_date, end_date, quota_pouch, quota_roti, is_active, order_mode, closed_message)
+          VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?)
         `).run(
           body.batch_name || 'PO Batch Baru',
           body.end_date || new Date(Date.now() + 7 * 86400000).toISOString(),
           body.quota_pouch || 50,
           body.quota_roti || 30,
           body.is_active !== undefined ? body.is_active : 1,
+          body.order_mode || 'po',
           body.closed_message || 'Pre-order batch ini telah ditutup.'
         );
       } else {
@@ -121,6 +123,7 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
               quota_pouch = COALESCE(?, quota_pouch),
               quota_roti = COALESCE(?, quota_roti),
               is_active = COALESCE(?, is_active),
+              order_mode = COALESCE(?, order_mode),
               closed_message = COALESCE(?, closed_message)
           WHERE id = ?
         `).run(
@@ -129,6 +132,7 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
           body.quota_pouch ?? null,
           body.quota_roti ?? null,
           body.is_active ?? null,
+          body.order_mode || null,
           body.closed_message || null,
           activeBatch.id
         );
@@ -190,7 +194,16 @@ export async function handleApiRequest(req: IncomingMessage, res: ServerResponse
       const isManual = body.source === 'manual';
 
       if (!isManual) {
-        if (!activeBatch || !activeBatch.is_active || activeBatch.is_expired) {
+        // Cek apakah form dimatikan secara manual (is_active = 0)
+        if (!activeBatch || !activeBatch.is_active) {
+          sendJson(res, 400, {
+            error: activeBatch?.closed_message || 'Form pemesanan saat ini sedang ditutup.',
+          });
+          return true;
+        }
+
+        // Cek jika mode PO dan waktu telah habis
+        if (activeBatch.order_mode === 'po' && activeBatch.is_expired) {
           sendJson(res, 400, {
             error: activeBatch?.closed_message || 'Batas waktu Pre-Order batch ini telah habis.',
           });
