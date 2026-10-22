@@ -8,7 +8,11 @@ import {
 import { profileData } from "../../data/bonkuData";
 import { ContactSauceCanvas } from "./ContactSauceCanvas";
 
-export const ContactSection: React.FC = () => {
+export interface ContactSectionProps {
+  onOpenAdmin?: () => void;
+}
+
+export const ContactSection: React.FC<ContactSectionProps> = ({ }) => {
   const [submarineClicks, setSubmarineClicks] = useState<number>(0);
   const [showHeart, setShowHeart] = useState<boolean>(false);
 
@@ -155,6 +159,7 @@ export const ContactSection: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-center gap-2 sm:gap-3 w-full sm:w-auto">
+
             <button
               type="button"
               onClick={scrollToTop}

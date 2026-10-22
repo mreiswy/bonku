@@ -12,6 +12,7 @@ import { MarketingGrid } from './components/marketing/MarketingGrid';
 import { OrderTimeline } from './components/order/OrderTimeline';
 import { ContactSection } from './components/contact/ContactSection';
 import { ProductDetailModal } from './components/products/ProductDetailModal';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { OrderPage } from './pages/OrderPage';
 
 export function App() {
@@ -28,7 +29,19 @@ export function App() {
     navigateTo('order');
   };
 
-  // 1. TAMPILAN HALAMAN PEMESANAN (ORDER PAGE - TERHUBUNG KE SPS)
+  // 1. TAMPILAN HALAMAN DASHBOARD KONFIGURASI ADMIN
+  if (currentRoute === 'admin') {
+    return (
+      <MotionConfig reducedMotion="user">
+        <AdminDashboardPage
+          onNavigateHome={() => navigateTo('home')}
+          onNavigateOrder={() => navigateTo('order')}
+        />
+      </MotionConfig>
+    );
+  }
+
+  // 2. TAMPILAN HALAMAN PEMESANAN (ORDER PAGE - TERHUBUNG KE SPS)
   if (currentRoute === 'order') {
     return (
       <MotionConfig reducedMotion="user">
@@ -40,7 +53,7 @@ export function App() {
     );
   }
 
-  // 2. TAMPILAN HALAMAN UTAMA (LANDING PAGE)
+  // 3. TAMPILAN HALAMAN UTAMA (LANDING PAGE)
   return (
     <MotionConfig reducedMotion="user">
       <div className="min-h-svh bg-[#fdf3e3] text-[#2a1710] selection:bg-[#b2430f] selection:text-white">
@@ -60,7 +73,7 @@ export function App() {
           <ProductShowcase onOpenProject={setActiveModalProject} />
           <MarketingGrid />
           <OrderTimeline />
-          <ContactSection />
+          <ContactSection onOpenAdmin={() => navigateTo('admin')} />
         </main>
 
         <ProductDetailModal

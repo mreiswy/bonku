@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   ShoppingBag,
   CheckCircle2,
@@ -11,8 +11,10 @@ import {
   ArrowLeft,
   FileSpreadsheet,
   ExternalLink,
+  Clock,
 } from 'lucide-react';
 import { submitOrderToSpreadsheet } from '../services/apiService';
+import { getFormConfig } from '../services/configService';
 import type { Order, OrderItem } from '../types/bonku';
 import { profileData } from '../data/bonkuData';
 import { BrandLogo } from '../components/common/BrandLogo';
@@ -44,6 +46,9 @@ const PRODUCTS = [
 ];
 
 export const OrderPage: React.FC<OrderPageProps> = ({ onNavigateHome, initialProductId }) => {
+  const [config, setConfig] = useState(getFormConfig);
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+
   // Form states
   const [quantities, setQuantities] = useState<{ [productId: string]: number }>({
     'abon-ayam-pouch': initialProductId === 'abon-ayam-pouch' ? 1 : 1,
@@ -58,6 +63,46 @@ export const OrderPage: React.FC<OrderPageProps> = ({ onNavigateHome, initialPro
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [isSavedToSpreadsheet, setIsSavedToSpreadsheet] = useState(false);
+
+  // Sinkronisasi konfigurasi realtime dari event internal & storage
+  useEffect(() => {
+    const refreshConfig = () => setConfig(getFormConfig());
+    window.addEventListener('bonku-config-changed', refreshConfig);
+    window.addEventListener('storage', refreshConfig);
+    return () => {
+      window.removeEventListener('bonku-config-changed', refreshConfig);
+      window.removeEventListener('storage', refreshConfig);
+    };
+  }, []);
+
+  // Countdown timer PO
+  useEffect(() => {
+    if (!config.isFormOpen || config.orderMode === 'reguler' || !config.endDate) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const calcTime = () => {
+      const target = new Date(config.endDate).getTime();
+      const diff = target - Date.now();
+      if (diff <= 0) {
+        setTimeLeft(null);
+        setConfig((prev) => ({ ...prev, isExpired: true }));
+      } else {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        setTimeLeft({ days, hours, minutes, seconds });
+      }
+    };
+
+    calcTime();
+    const interval = setInterval(calcTime, 1000);
+    return () => clearInterval(interval);
+  }, [config.isFormOpen, config.orderMode, config.endDate]);
+
+  const isClosed = !config.isFormOpen || (config.orderMode === 'po' && config.isExpired);
 
   const updateQuantity = (productId: string, delta: number) => {
     setQuantities((prev) => {
@@ -153,7 +198,6 @@ Mohon konfirmasi pesanan dan info serah terima COD ya. Terima kasih!`;
 
   return (
     <div className="min-h-screen bg-[#fdf3e3] text-[#2a1710] selection:bg-[#b2430f] selection:text-white pb-20">
-      {/* Top Navbar */}
       <header className="sticky top-0 z-30 bg-[#fdf3e3]/95 backdrop-blur-md border-b-3 border-[#2a1710] px-4 sm:px-8 py-3.5 shadow-sm">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -163,7 +207,9 @@ Mohon konfirmasi pesanan dan info serah terima COD ya. Terima kasih!`;
                 Pemesanan BonKu
               </h1>
               <p className="text-[11px] sm:text-xs text-[#5c3e32]">
-                {profileData.status}
+                {config.orderMode === 'reguler'
+                  ? config.batchName || 'Pesanan Harian (Ready Stock)'
+                  : config.batchName || profileData.status}
               </p>
             </div>
           </div>
@@ -179,9 +225,51 @@ Mohon konfirmasi pesanan dan info serah terima COD ya. Terima kasih!`;
         </div>
       </header>
 
-      {/* Main Page Content */}
       <main className="max-w-xl mx-auto px-4 pt-6 sm:pt-8 space-y-6">
-        {createdOrder ? (
+        {isClosed ? (
+          /* TAMPILAN JIKA FORM DITUTUP ATAU WAKTU PO HABIS */
+          <div className="bg-[#fffdf5] border-3 border-[#2a1710] rounded-3xl shadow-[6px_6px_0px_#2a1710] p-6 sm:p-8 text-center space-y-5">
+            <div className="w-16 h-16 mx-auto rounded-3xl bg-[#fde047] border-3 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] flex items-center justify-center">
+              <Clock className="w-8 h-8 text-[#b2430f]" />
+            </div>
+
+            <div className="space-y-2">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-black bg-[#fee2e2] text-[#dc2626] border border-[#dc2626]">
+                {config.orderMode === 'po' && config.isExpired
+                  ? 'PO DITUTUP (WAKTU HABIS)'
+                  : 'FORM DITUTUP SEMENTARA'}
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-[#2a1710]">
+                {config.orderMode === 'po' && config.isExpired
+                  ? 'Pre-Order Batch Ini Telah Ditutup'
+                  : 'Form Pemesanan Sedang Ditutup'}
+              </h2>
+              <p className="text-xs sm:text-sm text-[#475569] leading-relaxed max-w-md mx-auto">
+                {config.closedMessage ||
+                  'Pemesanan ditutup sementara oleh pengelola BonKu. Hubungi WhatsApp kami untuk menanyakan ketersediaan stok atau info batch selanjutnya.'}
+              </p>
+            </div>
+
+            <div className="pt-3 flex flex-col sm:flex-row gap-3 justify-center">
+              <a
+                href={profileData.contact.whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-[#2a1710] border-2 border-[#2a1710] font-mono font-bold text-xs shadow-[3px_3px_0px_#2a1710] flex items-center justify-center gap-2 cursor-pointer transition-transform active:translate-y-0.5"
+              >
+                <MessageCircle className="w-4 h-4 text-[#2a1710]" />
+                <span>Tanya Stok via WhatsApp</span>
+              </a>
+              <button
+                type="button"
+                onClick={onNavigateHome}
+                className="px-6 py-3 rounded-2xl bg-white hover:bg-[#faeee0] text-[#2a1710] border-2 border-[#2a1710] font-mono font-bold text-xs shadow-[3px_3px_0px_#2a1710] cursor-pointer"
+              >
+                Kembali ke Beranda
+              </button>
+            </div>
+          </div>
+        ) : createdOrder ? (
           /* TAMPILAN JIKA PESANAN BERHASIL */
           <div className="bg-[#fffdf5] border-3 border-[#2a1710] rounded-3xl shadow-[6px_6px_0px_#2a1710] p-6 sm:p-8 text-center space-y-5">
             <div className="w-16 h-16 mx-auto rounded-3xl bg-[#dcfce7] border-3 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] flex items-center justify-center text-[#16a34a]">
@@ -259,18 +347,33 @@ Mohon konfirmasi pesanan dan info serah terima COD ya. Terima kasih!`;
             </div>
           </div>
         ) : (
-          /* FORM PEMESANAN LANGSUNG TERHUBUNG KE SPS */
+          /* FORM PEMESANAN AKTIF */
           <div className="bg-[#fffdf5] border-3 border-[#2a1710] rounded-3xl shadow-[6px_6px_0px_#2a1710] p-5 sm:p-7 space-y-6">
-            {/* Banner Status Pemesanan */}
-            <div className="p-3.5 rounded-2xl bg-[#dcfce7] border-2 border-[#16a34a] shadow-[2px_2px_0px_#2a1710] flex items-center justify-between text-xs font-mono font-bold text-[#15803d]">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a] animate-pulse" />
-                <span>Form Pemesanan Aktif</span>
+            {/* Banner Status Mode PO vs Reguler */}
+            {config.orderMode === 'reguler' ? (
+              <div className="p-3.5 rounded-2xl bg-[#dcfce7] border-2 border-[#16a34a] shadow-[2px_2px_0px_#2a1710] flex items-center justify-between text-xs font-mono font-bold text-[#15803d]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a] animate-pulse" />
+                  <span>Pesanan Harian (Ready Stock) Buka</span>
+                </div>
+                <span className="text-[10px] bg-white px-2 py-0.5 rounded border border-[#16a34a] text-[#15803d]">
+                  Siap Kirim / COD
+                </span>
               </div>
-              <span className="text-[10px] bg-white px-2 py-0.5 rounded border border-[#16a34a] text-[#15803d]">
-                Langsung Terhubung ke SPS
-              </span>
-            </div>
+            ) : timeLeft ? (
+              <div className="p-3.5 rounded-2xl bg-[#fef3c7] border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] flex items-center justify-between text-xs font-mono font-bold text-[#92400e]">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#b2430f] animate-pulse" />
+                  <span>Sisa Waktu PO:</span>
+                </div>
+                <div className="flex items-center gap-1 text-[#2a1710]">
+                  <span className="bg-white px-2 py-0.5 rounded border border-[#2a1710]">{timeLeft.days}h</span>:
+                  <span className="bg-white px-2 py-0.5 rounded border border-[#2a1710]">{timeLeft.hours}j</span>:
+                  <span className="bg-white px-2 py-0.5 rounded border border-[#2a1710]">{timeLeft.minutes}m</span>:
+                  <span className="bg-white px-2 py-0.5 rounded border border-[#2a1710]">{timeLeft.seconds}d</span>
+                </div>
+              </div>
+            ) : null}
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Step 1: Produk */}
