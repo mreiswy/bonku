@@ -9,7 +9,7 @@ const navItems = [
   { label: 'Produk', id: 'products' },
   { label: 'Keunggulan', id: 'stack' },
   { label: 'Cara Pesan', id: 'journey' },
-  { label: 'Kontak', id: 'contact' }
+  // { label: 'Kontak', id: 'contact' }
 ];
 
 export const NavigationBar: React.FC = () => {

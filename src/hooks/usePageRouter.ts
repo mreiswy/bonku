@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export type AppRoute = 'home' | 'admin' | 'order';
+export type AppRoute = 'home' | 'order';
 
 export function usePageRouter() {
   const getRouteFromLocation = (): AppRoute => {
@@ -8,9 +8,6 @@ export function usePageRouter() {
     const path = window.location.pathname.toLowerCase();
     const hash = window.location.hash.toLowerCase();
 
-    if (path === '/admin' || hash === '#admin') {
-      return 'admin';
-    }
     if (path === '/pesan' || path === '/order' || hash === '#pesan' || hash === '#order') {
       return 'order';
     }
@@ -35,7 +32,6 @@ export function usePageRouter() {
 
   const navigateTo = useCallback((route: AppRoute) => {
     let url = '/';
-    if (route === 'admin') url = '/admin';
     if (route === 'order') url = '/pesan';
 
     window.history.pushState({}, '', url);

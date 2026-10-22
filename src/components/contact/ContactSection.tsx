@@ -1,41 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   ArrowUp,
   Heart,
-  Lock,
 } from "lucide-react";
 import { profileData } from "../../data/bonkuData";
 import { ContactSauceCanvas } from "./ContactSauceCanvas";
 
-
-interface ContactSectionProps {
-  onOpenAdmin?: () => void;
-}
-
-export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenAdmin }) => {
-  const [currentTime, setCurrentTime] = useState<string>("");
+export const ContactSection: React.FC = () => {
   const [submarineClicks, setSubmarineClicks] = useState<number>(0);
   const [showHeart, setShowHeart] = useState<boolean>(false);
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const options: Intl.DateTimeFormatOptions = {
-        timeZone: "Asia/Jakarta",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-      };
-      setCurrentTime(new Intl.DateTimeFormat("id-ID", options).format(now));
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -46,7 +21,6 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenAdmin }) =
     setShowHeart(true);
     setTimeout(() => setShowHeart(false), 1200);
   };
-
 
   return (
     <section
@@ -173,23 +147,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenAdmin }) =
               <span>
                 &copy; {new Date().getFullYear()} {profileData.name}
               </span>
-              <span className="hidden sm:inline text-[#475569]">•</span>
+              <span className="hidden sm:inline text-[#475569]">·</span>
             </div>
             <span className="text-[10px] sm:text-xs text-[#475569] sm:text-[#2a1710] font-normal sm:font-bold">
-              Abon Ayam Rumahan • UMKM Mahasiswa
+              Abon Ayam Rumahan · UMKM Mahasiswa
             </span>
           </div>
 
           <div className="flex items-center justify-center gap-2 sm:gap-3 w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={onOpenAdmin}
-              className="px-3 py-1.5 rounded-xl bg-[#faeee0] hover:bg-[#fde047] text-[#2a1710] border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] transition-all cursor-pointer flex items-center justify-center gap-1.5 font-mono font-bold text-xs"
-              title="Akses Dashboard Pengelola BonKu"
-            >
-              <Lock className="w-3.5 h-3.5 text-[#b2430f]" />
-              <span>Area Admin</span>
-            </button>
             <button
               type="button"
               onClick={scrollToTop}

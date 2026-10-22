@@ -45,10 +45,10 @@ export interface OrderStep {
   organization: string;
   period: string;
   badge?: string;
-    /** label tahap, mis. 'Pilih Produk' — menentukan warna ikon (lihat categoryConfig di OrderTimeline) */
-    category?: string;
-    /** Ganti gambar tahap ini: taruh file di public/ lalu isi path, mis. '/produk/step-1.svg'. Kosong = pakai ikon default kategori. */
-    iconUrl?: string;
+  /** label tahap, mis. 'Pilih Produk' — menentukan warna ikon (lihat categoryConfig di OrderTimeline) */
+  category?: string;
+  /** Ganti gambar tahap ini: taruh file di public/ lalu isi path, mis. '/produk/step-1.svg'. Kosong = pakai ikon default kategori. */
+  iconUrl?: string;
   description: string;
   highlights?: string[];
   tech: string[];
@@ -76,6 +76,8 @@ export interface ProfileData {
     whatsappLink: string;
     /** link Google Form pemesanan; kosongkan ('') bila belum ada */
     orderFormUrl: string;
+    /** link Webhook Google Spreadsheet (SPS) via Google Apps Script */
+    spreadsheetWebhookUrl?: string;
     instagram: string;
     location: string;
   };
@@ -97,7 +99,7 @@ export interface Order {
   customer_name: string;
   customer_phone: string;
   location_note: string;
-  items: string; // JSON string in DB
+  items: string; // JSON string
   parsedItems?: OrderItem[];
   total_price: number;
   notes: string;
@@ -105,27 +107,5 @@ export interface Order {
   payment_status: PaymentStatus;
   source: 'web' | 'manual' | 'whatsapp';
   created_at: string;
-  updated_at: string;
-}
-
-export interface ActiveBatch {
-  id: number;
-  batch_name: string;
-  start_date: string;
-  end_date: string;
-  quota_pouch: number;
-  quota_roti: number;
-  is_active: number;
-  order_mode: 'po' | 'reguler';
-  closed_message: string;
-  created_at: string;
-  is_expired: boolean;
-}
-
-export interface OrderStats {
-  totalRevenue: number;
-  totalOrders: number;
-  totalPouch: number;
-  totalRoti: number;
-  pendingOrders: number;
+  updated_at?: string;
 }

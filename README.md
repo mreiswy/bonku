@@ -2,7 +2,7 @@
 
 Website katalog & pemesanan **BonKu**, produk UMKM abon ayam rumahan dalam kemasan retort pouch food grade. Dibangun dengan React 19 + TypeScript + Vite 8 + Tailwind CSS v4.
 
-Produk: **Abon Ayam Pouch 100g** dan **Roti Isi Abon**. Pemesanan lewat Google Form, dikonfirmasi via WhatsApp, dengan opsi COD area kampus (Jember).
+Produk: **Abon Ayam Pouch 100g** dan **Roti Isi Abon**. Pemesanan terhubung langsung ke **Google Spreadsheet (SPS)** dan dikonfirmasi via WhatsApp, dengan opsi COD area kampus (Jember).
 
 ---
 
@@ -10,12 +10,12 @@ Produk: **Abon Ayam Pouch 100g** dan **Roti Isi Abon**. Pemesanan lewat Google F
 
 - **Hero interaktif kanvas**: simulasi saus bumbu 2D, karakter ayam & cabai terbang yang bisa di-drag dengan dialog jenaka.
 - **Katalog produk**: kartu produk dengan modal detail (komposisi, kemasan, cara penyajian).
-- **Formulir Pemesanan Web (SQLite)**: pesan langsung di web dengan kalkulasi harga otomatis, countdown timer batas waktu PO, dan penutupan otomatis jika waktu habis.
-- **Dashboard Admin & SQLite Lokal**: manajemen pesanan, ubah status pesanan, catat pesanan offline, pengaturan batas waktu & kuota batch PO, serta ekspor laporan ke CSV.
+- **Formulir Pemesanan Web Langsung ke SPS**: pesan langsung di web dengan kalkulasi harga otomatis, kirim data instan ke Google Spreadsheet (SPS), dan link konfirmasi WhatsApp otomatis.
 - **Bauran pemasaran 4P**: Product, Price, Place, Promotion dalam grid interaktif.
 - **Alur pemesanan**: timeline 4 langkah dari pilih produk sampai serah terima.
-- **Kontak & pemesanan**: tombol Google Form, chat WhatsApp, dan kartu flip "pesan rahasia".
+- **Kontak & pemesanan**: tombol Google Form, chat WhatsApp, dan informasi pemesanan.
 - **Aksesibilitas**: skip-link, urutan heading rapi, `prefers-reduced-motion` dihormati, kontras teks memenuhi WCAG AA.
+- **Arsitektur Static Murni**: 100% client-side SPA tanpa backend lokal/database server terpisah, ramah hosting gratis (Vercel, Netlify, GitHub Pages).
 
 ---
 
@@ -47,24 +47,21 @@ Build produksi:
 ```bash
 npm run build     # hasil di dist/
 npm run preview   # cek hasil build secara lokal
-npm run lint
 ```
-
-Opsional: repo ini menyertakan `flake.nix` + `.envrc` untuk devshell Nix (direnv). Bisa diabaikan bila tidak memakai Nix.
 
 ---
 
-## Mengubah Konten
+## Mengubah Konten & Integrasi SPS
 
-Seluruh teks website (nama, bio, kontak, produk, harga, langkah pemesanan) terpusat di **satu file**:
+Seluruh konfigurasi dan teks website terpusat di **satu file**:
 
 `src/data/bonkuData.ts`
 
 - **Nomor WhatsApp**: ubah `WA_NUMBER` (format internasional tanpa `+`, mis. `6285732897954`).
-- **Link Google Form**: ubah `contact.orderFormUrl` — bila diisi `''`, tombol pesan otomatis mengarah ke WhatsApp.
-- **Instagram**: isi `contact.instagram` dengan URL profil (mis. `https://instagram.com/bonku.id`). Selama kosong, tombol Instagram tidak ditampilkan.
-- **Produk, harga, langkah pemesanan**: sunting array terkait di file yang sama.
-- **Ikon tahap pemesanan**: opsional, isi `iconUrl` per langkah.
+- **Webhook Google Spreadsheet (SPS)**: masukkan Web App URL Google Apps Script pada `contact.spreadsheetWebhookUrl`. Setiap pemesanan di web akan otomatis tercatat ke baris Google Spreadsheet Anda. (Lihat panduan lengkap di [docs/SPS_INTEGRATION_GUIDE.md](docs/SPS_INTEGRATION_GUIDE.md)).
+- **Link Google Form Cadangan**: ubah `contact.orderFormUrl` — bila diisi, tersedia tombol cadangan untuk membuka Google Form resmi.
+- **Instagram**: isi `contact.instagram` dengan URL profil. Selama kosong, tombol Instagram disembunyikan.
+- **Produk, harga, keunggulan**: sunting array terkait di file yang sama.
 
 Cek konsistensi data setelah mengedit:
 
@@ -74,50 +71,33 @@ node --experimental-strip-types src/data/bonkuData.check.ts
 
 ---
 
-## Dashboard Admin & SQLite Lokal
-
-Sistem backend terintegrasi langsung dengan database SQLite lokal (`bonku.db`) melalui Vite middleware tanpa proses server terpisah.
-
-### 1. Halaman Pemesanan Web (`/pesan`)
-- Dapat diakses langsung di URL `/pesan` atau lewat tombol **"Pesan di Web"** di Hero banner dan modal detail produk.
-- Menampilkan countdown timer **"Sisa Waktu PO"**.
-- Begitu waktu PO habis (atau ditutup admin), form otomatis terkunci dengan status **"PO Ditutup"** dan tombol diarahkan ke WhatsApp untuk tanya sisa stok.
-
-### 2. Halaman Dashboard Admin (`/admin`)
-- Dapat diakses langsung di URL `/admin` atau klik tombol **"Area Admin"** di footer website.
-- Dilengkapi proteksi PIN 4 digit (default pengujian: `1234`).
-- Tampilan halaman penuh (*full page*) tanpa batasan modal dialog/overflow, sehingga nyaman digunakan di desktop maupun HP.
-- Fitur Dashboard:
-  - **Ringkasan & Metrik**: Omset penjualan, total pesanan, produk terjual, dan status buka/tutup form PO.
-  - **Daftar Pesanan**: Filter status (Pending, Dikonfirmasi, Siap COD, Selesai, Batal), pencarian nama/WA, ubah status pesanan, dan link chat WA pelanggan.
-  - **Catat Pesanan Offline**: Input pesanan tunai/COD offline langsung ke SQLite.
-  - **Batas Waktu & Batch PO**: Atur tanggal/jam tutup PO (`datetime-local`), kuota pouch & roti, toggle buka/tutup form manual, dan ubah pesan penutup.
-  - **Ekspor CSV**: Tombol unduh seluruh data pesanan ke file `.csv` untuk pembukuan Excel.
-
----
-
 ## Struktur Folder
 
 ```text
 bonku/
-├── public/                 # Logo & gambar produk (PNG/SVG)
+├── docs/                     # Panduan integrasi (SPS, dll.)
+├── public/                   # Logo & gambar produk (PNG/SVG)
 ├── src/
 │   ├── components/
-│   │   ├── about/          # Section produk & highlight
-│   │   ├── common/         # ErrorBoundary
-│   │   ├── contact/        # Kontak, kartu flip, kanvas saus
-│   │   ├── hero/           # Hero, kanvas bumbu, karakter interaktif
-│   │   ├── marketing/      # Grid bauran pemasaran 4P
-│   │   ├── navigation/     # Navbar floating
-│   │   ├── order/          # Timeline alur pemesanan
-│   │   ├── products/       # Katalog, dock filter, modal detail
-│   │   └── ui/             # Tombol taktil, logo, notifikasi
-│   ├── data/bonkuData.ts   # SEMUA TEKS DIEDIT DI SINI
-│   ├── hooks/              # Custom hooks (Lenis, tilt, aktivitas canvas)
-│   ├── types/bonku.ts      # Definisi TypeScript
+│   │   ├── about/            # Section produk & highlight
+│   │   ├── common/           # ErrorBoundary
+│   │   ├── contact/          # Kontak, kanvas saus, footer
+│   │   ├── hero/             # Hero, kanvas bumbu, karakter interaktif
+│   │   ├── marketing/        # Grid bauran pemasaran 4P
+│   │   ├── navigation/       # Navbar floating
+│   │   ├── order/            # Timeline alur pemesanan
+│   │   ├── products/         # Katalog, dock filter, modal detail
+│   │   └── ui/               # Tombol taktil, logo, notifikasi
+│   ├── data/bonkuData.ts     # SEMUA TEKS & KONFIGURASI DIEDIT DI SINI
+│   ├── hooks/                # Custom hooks (Lenis, routing halaman, tilt)
+│   ├── pages/
+│   │   └── OrderPage.tsx     # Halaman pemesanan web terhubung ke SPS
+│   ├── services/
+│   │   └── apiService.ts     # Pengirim data ke Webhook Google Spreadsheet
+│   ├── types/bonku.ts        # Definisi tipe TypeScript
 │   ├── App.tsx
 │   ├── main.tsx
-│   └── index.css           # Konfigurasi Tailwind CSS v4
+│   └── index.css             # Konfigurasi Tailwind CSS v4
 ├── index.html
 ├── package.json
 └── vite.config.ts
@@ -127,10 +107,10 @@ bonku/
 
 ## Deploy
 
-SPA murni berbasis Vite — bisa langsung ditautkan ke Vercel atau Netlify tanpa konfigurasi server tambahan.
+SPA murni berbasis Vite — bisa langsung di-deploy ke Vercel, Netlify, Cloudflare Pages, atau GitHub Pages tanpa konfigurasi server tambahan.
 
 ---
 
 ## Lisensi
 
-Dirilis di bawah lisensi [MIT](LICENSE). Awalnya diturunkan dari template open source [template-porto-pantai](https://github.com/ryhndastra/template-porto-pantai) karya Reyhand Astra, lalu diubah total menjadi katalog produk BonKu.
+Dirilis di bawah lisensi [MIT](LICENSE).

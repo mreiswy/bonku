@@ -1,138 +1,94 @@
-import type { ActiveBatch, Order, OrderItem, OrderStats, OrderStatus, PaymentStatus } from '../types/bonku';
+import type { Order, OrderItem } from '../types/bonku';
+import { profileData } from '../data/bonkuData';
 
-export async function fetchActiveBatch(): Promise<ActiveBatch | null> {
-  try {
-    const res = await fetch('/api/batch/active');
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (err) {
-    console.error('Failed to fetch active batch:', err);
-    return null;
-  }
-}
-
-export async function createOrder(data: {
+export interface CreateOrderPayload {
   customer_name: string;
   customer_phone: string;
   location_note?: string;
   items: OrderItem[];
   notes?: string;
+  total_price: number;
   source?: 'web' | 'manual' | 'whatsapp';
-}): Promise<{ success: boolean; order?: Order; error?: string }> {
-  try {
-    const res = await fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    const result = await res.json();
-    if (!res.ok) {
-      return { success: false, error: result.error || 'Gagal menyimpan pesanan' };
-    }
-    return { success: true, order: result.order };
-  } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Koneksi ke server gagal' };
-  }
 }
 
-export async function fetchOrders(params?: { status?: string; search?: string }): Promise<Order[]> {
+/**
+ * Mengirimkan data pesanan langsung ke Google Spreadsheet (SPS) via Webhook Google Apps Script,
+ * dan menghasilkan objek Order terstruktur untuk dilanjutkan ke konfirmasi WhatsApp.
+ */
+export async function submitOrderToSpreadsheet(data: CreateOrderPayload): Promise<{
+  success: boolean;
+  order?: Order;
+  error?: string;
+  sentToSpreadsheet?: boolean;
+}> {
   try {
-    const searchParams = new URLSearchParams();
-    if (params?.status) searchParams.set('status', params.status);
-    if (params?.search) searchParams.set('search', params.search);
+    const timestampWib = new Date().toLocaleString('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      dateStyle: 'medium',
+      timeStyle: 'medium',
+    });
 
-    const res = await fetch(`/api/orders?${searchParams.toString()}`);
-    if (!res.ok) return [];
-    const orders: Order[] = await res.json();
-    return orders.map((o) => {
+    const orderId = `BK-${Date.now().toString().slice(-6)}`;
+
+    const order: Order = {
+      id: orderId,
+      customer_name: data.customer_name,
+      customer_phone: data.customer_phone,
+      location_note: data.location_note || '',
+      items: JSON.stringify(data.items),
+      parsedItems: data.items,
+      total_price: data.total_price,
+      notes: data.notes || '',
+      status: 'pending',
+      payment_status: 'unpaid',
+      source: data.source || 'web',
+      created_at: timestampWib,
+    };
+
+    let sentToSpreadsheet = false;
+    const webhookUrl = profileData.contact.spreadsheetWebhookUrl?.trim();
+
+    if (webhookUrl) {
       try {
-        return { ...o, parsedItems: JSON.parse(o.items) };
-      } catch {
-        return { ...o, parsedItems: [] };
+        const itemsSummary = data.items
+          .map((i) => `${i.title} (${i.quantity}x)`)
+          .join(', ');
+
+        // Mengirim data ke Google Spreadsheet via Google Apps Script Web App
+        // mode 'no-cors' digunakan untuk memastikan request berhasil dikirim ke Google Script
+        await fetch(webhookUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderId: order.id,
+            timestamp: order.created_at,
+            customerName: order.customer_name,
+            customerPhone: order.customer_phone,
+            locationNote: order.location_note || '-',
+            itemsSummary: itemsSummary,
+            totalPrice: order.total_price,
+            notes: order.notes || '-',
+            source: order.source,
+          }),
+        });
+        sentToSpreadsheet = true;
+      } catch (webhookErr) {
+        console.warn('Pengiriman ke Webhook Google Spreadsheet (SPS) mengalami kendala:', webhookErr);
       }
-    });
-  } catch (err) {
-    console.error('Failed to fetch orders:', err);
-    return [];
-  }
-}
-
-export async function updateOrderStatus(
-  orderId: string,
-  updates: { status?: OrderStatus; payment_status?: PaymentStatus }
-): Promise<{ success: boolean; order?: Order; error?: string }> {
-  try {
-    const res = await fetch(`/api/orders/${orderId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updates),
-    });
-    const result = await res.json();
-    if (!res.ok) {
-      return { success: false, error: result.error || 'Gagal mengubah status' };
     }
-    return { success: true, order: result.order };
+
+    return {
+      success: true,
+      order,
+      sentToSpreadsheet,
+    };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Koneksi gagal' };
-  }
-}
-
-export async function deleteOrder(orderId: string): Promise<boolean> {
-  try {
-    const res = await fetch(`/api/orders/${orderId}`, { method: 'DELETE' });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
-
-export async function fetchOrderStats(): Promise<OrderStats> {
-  try {
-    const res = await fetch('/api/stats');
-    if (!res.ok) {
-      return { totalRevenue: 0, totalOrders: 0, totalPouch: 0, totalRoti: 0, pendingOrders: 0 };
-    }
-    return await res.json();
-  } catch {
-    return { totalRevenue: 0, totalOrders: 0, totalPouch: 0, totalRoti: 0, pendingOrders: 0 };
-  }
-}
-
-export async function verifyAdminPin(pin: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const res = await fetch('/api/auth/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pin }),
-    });
-    const result = await res.json();
-    return { success: result.success === true, error: result.error };
-  } catch {
-    return { success: false, error: 'Gagal menghubungi server verifikasi' };
-  }
-}
-
-export async function updateActiveBatch(data: {
-  batch_name?: string;
-  end_date?: string;
-  quota_pouch?: number;
-  quota_roti?: number;
-  is_active?: number;
-  order_mode?: 'po' | 'reguler';
-  closed_message?: string;
-}): Promise<{ success: boolean; batch?: ActiveBatch; error?: string }> {
-  try {
-    const res = await fetch('/api/batch/active', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    const result = await res.json();
-    if (!res.ok) {
-      return { success: false, error: result.error || 'Gagal memperbarui batch' };
-    }
-    return { success: true, batch: result.batch };
-  } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Koneksi gagal' };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : 'Terjadi kesalahan saat memproses pesanan.',
+    };
   }
 }

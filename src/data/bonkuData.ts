@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ProfileData,
   Project,
   MarketingItem,
@@ -41,6 +41,10 @@ export const profileData: ProfileData = {
     // Tempel link Google Form pemesanan Anda di sini.
     // Selama masih kosong (''), tombol pesan otomatis mengarah ke WhatsApp.
     orderFormUrl: "https://forms.gle/ahosfZ37VqRUw1Kw6",
+    // Tempel link Webhook Google Apps Script (Google Spreadsheet / SPS) di sini.
+    // Contoh: "https://script.google.com/macros/s/AKfycbx.../exec"
+    // Form pemesanan di web akan otomatis mengirim data pesanan langsung ke Google Spreadsheet.
+    spreadsheetWebhookUrl: "https://script.google.com/macros/s/AKfycbz3ntkaREt9fS8Kle-8H-G98Xc-N_acv-A6-8qHvN9v2gpNAMpjE-htlux_8oZBASg/exec",
     // Tempel link profil Instagram BonKu di sini (mis. "https://instagram.com/bonku.id").
     // Selama masih kosong (''), tombol Instagram tidak ditampilkan di halaman kontak.
     instagram: "",

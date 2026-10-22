@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ShoppingBag,
-  Clock,
   CheckCircle2,
   AlertCircle,
   MessageCircle,
@@ -10,9 +9,11 @@ import {
   Plus,
   Minus,
   ArrowLeft,
+  FileSpreadsheet,
+  ExternalLink,
 } from 'lucide-react';
-import { fetchActiveBatch, createOrder } from '../services/apiService';
-import type { ActiveBatch, Order, OrderItem } from '../types/bonku';
+import { submitOrderToSpreadsheet } from '../services/apiService';
+import type { Order, OrderItem } from '../types/bonku';
 import { profileData } from '../data/bonkuData';
 import { BrandLogo } from '../components/common/BrandLogo';
 
@@ -29,7 +30,7 @@ const PRODUCTS = [
     unit: 'pouch',
     badge: 'Best Seller',
     image: '/produk/abon-ayam.svg',
-    description: 'Abon ayam olahan rumahan bumbu rempah alami, retort pouch food grade.',
+    description: 'Abon ayam olahan rumahan bumbu rempah alami, kemasan retort pouch food grade.',
   },
   {
     id: 'roti-isi-abon',
@@ -43,10 +44,6 @@ const PRODUCTS = [
 ];
 
 export const OrderPage: React.FC<OrderPageProps> = ({ onNavigateHome, initialProductId }) => {
-  const [batch, setBatch] = useState<ActiveBatch | null>(null);
-  const [loadingBatch, setLoadingBatch] = useState(true);
-  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
-
   // Form states
   const [quantities, setQuantities] = useState<{ [productId: string]: number }>({
     'abon-ayam-pouch': initialProductId === 'abon-ayam-pouch' ? 1 : 1,
@@ -60,49 +57,7 @@ export const OrderPage: React.FC<OrderPageProps> = ({ onNavigateHome, initialPro
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
-
-  // Status expired diturunkan dari response batch API
-  const isExpired = batch ? (!batch.is_active || batch.is_expired) : false;
-
-  // Load batch data saat halaman dimuat
-  useEffect(() => {
-    let isSubscribed = true;
-    fetchActiveBatch().then((data) => {
-      if (isSubscribed) {
-        setBatch(data);
-        setLoadingBatch(false);
-      }
-    });
-    return () => {
-      isSubscribed = false;
-    };
-  }, []);
-
-  // Countdown timer
-  useEffect(() => {
-    if (!batch || !batch.end_date || !batch.is_active || batch.order_mode === 'reguler') {
-      return;
-    }
-
-    const calculateTime = () => {
-      const target = new Date(batch.end_date).getTime();
-      const diff = target - Date.now();
-
-      if (diff <= 0) {
-        setTimeLeft(null);
-      } else {
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / 1000 / 60) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
-        setTimeLeft({ days, hours, minutes, seconds });
-      }
-    };
-
-    calculateTime();
-    const interval = setInterval(calculateTime, 1000);
-    return () => clearInterval(interval);
-  }, [batch]);
+  const [isSavedToSpreadsheet, setIsSavedToSpreadsheet] = useState(false);
 
   const updateQuantity = (productId: string, delta: number) => {
     setQuantities((prev) => {
@@ -116,8 +71,8 @@ export const OrderPage: React.FC<OrderPageProps> = ({ onNavigateHome, initialPro
     return PRODUCTS.filter((p) => (quantities[p.id] || 0) > 0).map((p) => ({
       productId: p.id,
       title: p.title,
-      price: p.price,
       quantity: quantities[p.id],
+      price: p.price,
       subtotal: p.price * quantities[p.id],
     }));
   }, [quantities]);
@@ -146,21 +101,23 @@ export const OrderPage: React.FC<OrderPageProps> = ({ onNavigateHome, initialPro
     }
 
     setSubmitting(true);
-    const res = await createOrder({
+    const res = await submitOrderToSpreadsheet({
       customer_name: customerName.trim(),
       customer_phone: customerPhone.trim(),
       location_note: locationNote.trim(),
       items: selectedItems,
       notes: notes.trim(),
+      total_price: totalPrice,
       source: 'web',
     });
     setSubmitting(false);
 
     if (res.success && res.order) {
       setCreatedOrder(res.order);
+      setIsSavedToSpreadsheet(!!res.sentToSpreadsheet);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      setErrorMessage(res.error || 'Terjadi kesalahan saat menyimpan pesanan.');
+      setErrorMessage(res.error || 'Terjadi kesalahan saat memproses pesanan.');
     }
   };
 
@@ -176,18 +133,20 @@ export const OrderPage: React.FC<OrderPageProps> = ({ onNavigateHome, initialPro
     let phone = profileData.contact.whatsapp.replace(/\D/g, '');
     if (phone.startsWith('0')) phone = '62' + phone.slice(1);
 
-    const itemsSummary = selectedItems.map((i) => `• ${i.title} (${i.quantity}x) = ${formatRupiah(i.subtotal)}`).join('\n');
+    const itemsSummary = selectedItems
+      .map((i) => `• ${i.title} (${i.quantity}x) = ${formatRupiah(i.subtotal)}`)
+      .join('\n');
 
-    const msg = `Halo BonKu! Saya telah membuat pesanan di web:
+    const msg = `Halo BonKu! Saya telah mengisi form pemesanan di web:
 *ID Pesanan:* ${order.id}
 *Nama:* ${order.customer_name}
 *No. WA:* ${order.customer_phone}
 *Titik COD / Alamat:* ${order.location_note || '-'}
-*Rincian:*
+*Rincian Pesanan:*
 ${itemsSummary}
 *Total:* ${formatRupiah(order.total_price)}
-${order.notes ? `*Catatan:* ${order.notes}\n` : ''}
-Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
+${order.notes ? `*Catatan Khusus:* ${order.notes}\n` : ''}
+Mohon konfirmasi pesanan dan info serah terima COD ya. Terima kasih!`;
 
     return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
   };
@@ -204,9 +163,7 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
                 Pemesanan BonKu
               </h1>
               <p className="text-[11px] sm:text-xs text-[#5c3e32]">
-                {batch?.order_mode === 'reguler'
-                  ? (batch?.batch_name || 'Pesanan Harian (Ready Stock)')
-                  : (batch?.batch_name || 'Open Pre-Order')}
+                {profileData.status}
               </p>
             </div>
           </div>
@@ -224,56 +181,7 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
 
       {/* Main Page Content */}
       <main className="max-w-xl mx-auto px-4 pt-6 sm:pt-8 space-y-6">
-        {loadingBatch ? (
-          <div className="py-20 text-center text-sm font-mono text-[#5c3e32] bg-white rounded-3xl border-3 border-[#2a1710] p-6 shadow-[4px_4px_0px_#2a1710]">
-            Memeriksa status batch pre-order...
-          </div>
-        ) : isExpired ? (
-          /* TAMPILAN JIKA WAKTU HABIS / PO DITUTUP */
-          <div className="bg-[#fffdf5] border-3 border-[#2a1710] rounded-3xl shadow-[6px_6px_0px_#2a1710] p-6 sm:p-8 text-center space-y-5">
-            <div className="w-16 h-16 mx-auto rounded-3xl bg-[#fde047] border-3 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] flex items-center justify-center">
-              <Clock className="w-8 h-8 text-[#b2430f]" />
-            </div>
-
-            <div className="space-y-2">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-black bg-[#fee2e2] text-[#dc2626] border border-[#dc2626]">
-                {batch?.order_mode === 'po' && batch?.is_expired
-                  ? 'PO DITUTUP (WAKTU HABIS)'
-                  : 'FORM DITUTUP SEMENTARA'}
-              </span>
-              <h2 className="text-xl sm:text-2xl font-black text-[#2a1710]">
-                {batch?.order_mode === 'po' && batch?.is_expired
-                  ? 'Pre-Order Batch Ini Telah Ditutup'
-                  : 'Form Pemesanan Sedang Ditutup'}
-              </h2>
-              <p className="text-xs sm:text-sm text-[#475569] leading-relaxed max-w-md mx-auto">
-                {batch?.closed_message ||
-                  (batch?.order_mode === 'po' && batch?.is_expired
-                    ? 'Batas waktu pemesanan untuk batch saat ini telah berakhir. Hubungi kami via WhatsApp untuk menanyakan ketersediaan sisa stok atau info batch selanjutnya.'
-                    : 'Pemesanan ditutup sementara oleh pengelola BonKu. Hubungi WhatsApp kami untuk menanyakan stok atau pemesanan langsung.')}
-              </p>
-            </div>
-
-            <div className="pt-3 flex flex-col sm:flex-row gap-3 justify-center">
-              <a
-                href={profileData.contact.whatsappLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-[#2a1710] border-2 border-[#2a1710] font-mono font-bold text-xs shadow-[3px_3px_0px_#2a1710] flex items-center justify-center gap-2 cursor-pointer transition-transform active:translate-y-0.5"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Tanya Stok via WhatsApp</span>
-              </a>
-              <button
-                type="button"
-                onClick={onNavigateHome}
-                className="px-6 py-3 rounded-2xl bg-white hover:bg-[#faeee0] text-[#2a1710] border-2 border-[#2a1710] font-mono font-bold text-xs shadow-[3px_3px_0px_#2a1710] cursor-pointer"
-              >
-                Kembali ke Beranda
-              </button>
-            </div>
-          </div>
-        ) : createdOrder ? (
+        {createdOrder ? (
           /* TAMPILAN JIKA PESANAN BERHASIL */
           <div className="bg-[#fffdf5] border-3 border-[#2a1710] rounded-3xl shadow-[6px_6px_0px_#2a1710] p-6 sm:p-8 text-center space-y-5">
             <div className="w-16 h-16 mx-auto rounded-3xl bg-[#dcfce7] border-3 border-[#2a1710] shadow-[3px_3px_0px_#2a1710] flex items-center justify-center text-[#16a34a]">
@@ -282,13 +190,15 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
 
             <div className="space-y-1.5">
               <span className="inline-block px-3 py-1 rounded-full text-xs font-mono font-black bg-[#dcfce7] text-[#16a34a] border border-[#16a34a]">
-                PESANAN TERCATAT
+                PESANAN SIAP DIKONFIRMASI
               </span>
               <h2 className="text-xl sm:text-2xl font-black text-[#2a1710]">
                 Terima Kasih, {createdOrder.customer_name}!
               </h2>
               <p className="text-xs sm:text-sm text-[#5c3e32]">
-                Pesanan Anda telah aman tercatat di database lokal BonKu.
+                {isSavedToSpreadsheet
+                  ? 'Data pesanan telah otomatis tercatat ke Spreadsheet (SPS) BonKu.'
+                  : 'Rincian pesanan Anda telah tersusun rapi dan siap dikonfirmasi.'}
               </p>
             </div>
 
@@ -308,6 +218,11 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
               <div className="text-xs text-[#64748b]">
                 Titik COD: {createdOrder.location_note || 'Area Kampus (Disepakati di WhatsApp)'}
               </div>
+              {createdOrder.notes && (
+                <div className="text-xs text-[#64748b] italic">
+                  Catatan: &ldquo;{createdOrder.notes}&rdquo;
+                </div>
+              )}
             </div>
 
             <div className="space-y-2.5 pt-2">
@@ -317,9 +232,23 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
                 rel="noopener noreferrer"
                 className="w-full py-3.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-[#2a1710] border-2 border-[#2a1710] font-mono font-black text-xs sm:text-sm shadow-[3px_3px_0px_#2a1710] flex items-center justify-center gap-2 cursor-pointer transition-transform active:translate-y-0.5"
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="w-5 h-5 text-[#2a1710]" />
                 <span>Konfirmasi Pesanan ke WhatsApp BonKu</span>
               </a>
+
+              {profileData.contact.orderFormUrl && (
+                <a
+                  href={profileData.contact.orderFormUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 px-4 rounded-2xl bg-[#fffdf5] hover:bg-[#fde047] text-[#2a1710] border-2 border-[#2a1710] font-mono font-bold text-xs shadow-[2px_2px_0px_#2a1710] flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-[#b2430f]" />
+                  <span>Cadangan: Isi Google Form Resmi</span>
+                  <ExternalLink className="w-3 h-3 text-[#64748b]" />
+                </a>
+              )}
+
               <button
                 type="button"
                 onClick={onNavigateHome}
@@ -330,33 +259,18 @@ Mohon konfirmasi dan info pembayaran/serah terima COD ya. Terima kasih!`;
             </div>
           </div>
         ) : (
-          /* FORM PEMESANAN AKTIF */
+          /* FORM PEMESANAN LANGSUNG TERHUBUNG KE SPS */
           <div className="bg-[#fffdf5] border-3 border-[#2a1710] rounded-3xl shadow-[6px_6px_0px_#2a1710] p-5 sm:p-7 space-y-6">
-            {/* Mode Banner: Day Biasa (Ready Stock) vs Countdown PO */}
-            {batch?.order_mode === 'reguler' ? (
-              <div className="p-3.5 rounded-2xl bg-[#dcfce7] border-2 border-[#16a34a] shadow-[2px_2px_0px_#2a1710] flex items-center justify-between text-xs font-mono font-bold text-[#15803d]">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a] animate-pulse" />
-                  <span>Pesanan Harian (Ready Stock) Buka</span>
-                </div>
-                <span className="text-[10px] bg-white px-2 py-0.5 rounded border border-[#16a34a] text-[#15803d]">
-                  Siap Kirim / COD
-                </span>
+            {/* Banner Status Pemesanan */}
+            <div className="p-3.5 rounded-2xl bg-[#dcfce7] border-2 border-[#16a34a] shadow-[2px_2px_0px_#2a1710] flex items-center justify-between text-xs font-mono font-bold text-[#15803d]">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#16a34a] animate-pulse" />
+                <span>Form Pemesanan Aktif</span>
               </div>
-            ) : timeLeft ? (
-              <div className="p-3.5 rounded-2xl bg-[#fef3c7] border-2 border-[#2a1710] shadow-[2px_2px_0px_#2a1710] flex items-center justify-between text-xs font-mono font-bold text-[#92400e]">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#b2430f] animate-pulse" />
-                  <span>Sisa Waktu PO:</span>
-                </div>
-                <div className="flex items-center gap-1 text-[#2a1710]">
-                  <span className="bg-white px-2 py-0.5 rounded border border-[#2a1710]">{timeLeft.days}h</span>:
-                  <span className="bg-white px-2 py-0.5 rounded border border-[#2a1710]">{timeLeft.hours}j</span>:
-                  <span className="bg-white px-2 py-0.5 rounded border border-[#2a1710]">{timeLeft.minutes}m</span>:
-                  <span className="bg-white px-2 py-0.5 rounded border border-[#2a1710]">{timeLeft.seconds}d</span>
-                </div>
-              </div>
-            ) : null}
+              <span className="text-[10px] bg-white px-2 py-0.5 rounded border border-[#16a34a] text-[#15803d]">
+                Langsung Terhubung ke SPS
+              </span>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Step 1: Produk */}
