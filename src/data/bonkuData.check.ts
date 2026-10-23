@@ -25,7 +25,7 @@ assert(orderStepsData.length === 4, 'jumlah langkah pemesanan berubah: ' + order
 for (const p of productsData) {
   assert(['abon', 'roti'].includes(p.category), `kategori produk tidak valid: ${p.category}`);
   assert(p.orderUrl?.startsWith('https://wa.me/'), `orderUrl bukan link WA: ${p.id}`);
-  assert(p.orderUrl?.includes('6285732897954'), `nomor WA di orderUrl salah: ${p.orderUrl}`);
+  assert(p.orderUrl?.includes('6282338929138'), `nomor WA di orderUrl salah: ${p.orderUrl}`);
 }
 
 // 3. layer aspek harus cocok dengan MarketingLayer
@@ -36,9 +36,9 @@ for (const m of marketingData) {
 
 // 4. turunan link WhatsApp dari nomor yang ditampilkan (dipakai ContactSection)
 const derived = `https://wa.me/${profileData.contact.whatsapp.replace(/\D/g, '').replace(/^0/, '62')}`;
-assert(derived === 'https://wa.me/6285732897954', 'derivasi nomor WA salah: ' + derived);
+assert(derived === 'https://wa.me/6282338929138', 'derivasi nomor WA salah: ' + derived);
 assert(
-  profileData.contact.whatsappLink.startsWith('https://wa.me/6285732897954'),
+  profileData.contact.whatsappLink.startsWith('https://wa.me/6282338929138'),
   'whatsappLink tidak sinkron dengan nomor: ' + profileData.contact.whatsappLink
 );
 

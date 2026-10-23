@@ -13,8 +13,8 @@
 // Tidak perlu menyentuh file komponen lain.
 // ============================================================================
 
-// Nomor WhatsApp 085732897954 -> format internasional 6285732897954
-const WA_NUMBER = "6285732897954";
+// Nomor WhatsApp 082338929138 -> format internasional 6282338929138
+const WA_NUMBER = "6282338929138";
 const waLink = (pesan: string) =>
   `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(pesan)}`;
 
@@ -34,7 +34,7 @@ export const profileData: ProfileData = {
     "Siap Santap",
   ],
   contact: {
-    whatsapp: "0857-3289-7954",
+    whatsapp: "0823-3892-9138",
     whatsappLink: waLink(
       "Halo BonKu! Saya mau pesan abon ayam. Boleh info stok dan harganya?",
     ),

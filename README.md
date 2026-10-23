@@ -57,7 +57,7 @@ Seluruh konfigurasi dan teks website terpusat di **satu file**:
 
 `src/data/bonkuData.ts`
 
-- **Nomor WhatsApp**: ubah `WA_NUMBER` (format internasional tanpa `+`, mis. `6285732897954`).
+- **Nomor WhatsApp**: ubah `WA_NUMBER` (format internasional tanpa `+`, mis. `6282338929138`).
 - **Webhook Google Spreadsheet (SPS)**: masukkan Web App URL Google Apps Script pada `contact.spreadsheetWebhookUrl`. Setiap pemesanan di web akan otomatis tercatat ke baris Google Spreadsheet Anda. (Lihat panduan lengkap di [docs/SPS_INTEGRATION_GUIDE.md](docs/SPS_INTEGRATION_GUIDE.md)).
 - **Link Google Form Cadangan**: ubah `contact.orderFormUrl` — bila diisi, tersedia tombol cadangan untuk membuka Google Form resmi.
 - **Instagram**: isi `contact.instagram` dengan URL profil. Selama kosong, tombol Instagram disembunyikan.
